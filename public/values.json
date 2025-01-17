@@ -1,0 +1,130 @@
+[
+    {
+        "id": 1,
+        "symbol":"xpml11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 97.93,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 2,
+        "symbol":"kncr11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 102.16,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 3,
+        "symbol":"hglg11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 149.91,
+        "purchaseDate": "2025-01-13"
+        
+    },
+    {
+        "id": 4,
+        "symbol":"krni11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 131.95,
+        "purchaseDate": "2025-01-13"
+        
+    },
+    {
+        "id": 5,
+        "symbol":"visc11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 93.34,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 6,
+        "symbol":"xplg11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 91.66,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 7,
+        "symbol":"knca11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 87.90,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 8,
+        "symbol":"urpr11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 56.90,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 9,
+        "symbol":"mxrf11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 9.33,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 10,
+        "symbol":"gare11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 8.33,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 11,
+        "symbol":"vgia11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 8.25,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 12,
+        "symbol":"vghf11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 7.46,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 13,
+        "symbol":"vino11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 1,
+        "purchasePrice": 4.61,
+        "purchaseDate": "2025-01-13"
+    },
+    {
+        "id": 14,
+        "symbol":"ivvb11",
+        "amount": 1,
+        "currency": "BRL",
+        "categoryInvestmentId": 6,
+        "purchasePrice": 404.21,
+        "purchaseDate": "2025-01-13"
+    }
+]
