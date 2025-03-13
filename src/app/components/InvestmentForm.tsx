@@ -9,30 +9,34 @@ interface Investment {
   purchaseDate: Date;
 }
 
-interface CategoryInvestment {
+export interface CategoryInvestment {
   id: number;
   name: string;
 }
 
 interface InvestmentFormProps {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  handleChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   newInvestment: Investment;
   categoryInvestments: CategoryInvestment[];
 }
 
 const InvestmentForm: React.FC<InvestmentFormProps> = ({
-                                                         handleSubmit,
-                                                         handleChange,
-                                                         newInvestment,
-                                                         categoryInvestments,
-                                                       }) => {
+  handleSubmit,
+  handleChange,
+  newInvestment,
+  categoryInvestments,
+}) => {
   return (
     <form
       onSubmit={handleSubmit}
       className="mb-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
     >
-      <h3 className="text-xl font-bold text-gray-700 mb-4">Adicionar Novo Investimento</h3>
+      <h3 className="text-xl font-bold text-gray-700 mb-4">
+        Adicionar Novo Investimento
+      </h3>
 
       <div className="mb-4">
         <label className="block text-gray-600">Símbolo</label>
@@ -47,7 +51,9 @@ const InvestmentForm: React.FC<InvestmentFormProps> = ({
       </div>
 
       <div className="mb-4">
-        <label htmlFor="purchaseDate" className="block text-gray-600">Data de Compra</label>
+        <label htmlFor="purchaseDate" className="block text-gray-600">
+          Data de Compra
+        </label>
         <input
           type="date"
           name="purchaseDate"

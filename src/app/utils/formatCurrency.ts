@@ -6,14 +6,14 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatCurrencyByCurrency(
-  value: number,
+  value: number | undefined,
   currency: string,
   locale: string = "pt-BR"
 ): string {
-  if (isNaN(value)) {
-    return "NaN"
+  if (isNaN(value!)) {
+    return "NaN";
   }
-  return value.toLocaleString(locale, {
+  return value!.toLocaleString(locale, {
     style: "currency",
     currency: currency,
   });
