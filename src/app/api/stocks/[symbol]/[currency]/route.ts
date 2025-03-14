@@ -1,32 +1,49 @@
+import { NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
 
-export async function GET(
-  request: Request,
-  context: { params: { symbol: string; currency: string } }
-) {
-  const { params } = context;
-  const { symbol, currency } = await params; // Aguarde a extração dos parâmetros
+export async function GET(request: Request) {
+  // Extract query parameters from the URL
+  const url = new URL(request.url);
+  const symbol = url.searchParams.get("symbol");
+  const currency = url.searchParams.get("currency");
 
+  // Validate required parameters
+  if (!symbol || !currency) {
+    return new NextResponse(
+      JSON.stringify({
+        error: 'Parâmetros "symbol" e "currency" são obrigatórios.',
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // Format the symbol based on the currency
   let symbolFormatted = symbol.toUpperCase();
   if (currency === "BRL") {
     symbolFormatted = symbol + ".SA";
   }
 
   try {
+    // Fetch stock data from Yahoo Finance
     const stockData = await yahooFinance.quote(symbolFormatted);
 
+    // Destructure the required fields from the stock data
     const {
-      currency = "USD", // Valor padrão para a moeda
-      regularMarketPrice = 0, // Preço atual
-      regularMarketOpen = 0, // Preço de abertura
-      regularMarketDayHigh = 0, // Preço máximo do dia
-      regularMarketDayLow = 0, // Preço mínimo do dia
+      currency: stockCurrency = "USD", // Default to USD if not provided
+      regularMarketPrice = 0, // Current price
+      regularMarketOpen = 0, // Opening price
+      regularMarketDayHigh = 0, // Daily high price
+      regularMarketDayLow = 0, // Daily low price
     } = stockData;
 
-    return new Response(
+    // Return the response with the stock data
+    return new NextResponse(
       JSON.stringify({
         symbol,
-        currency,
+        currency: stockCurrency,
         price: regularMarketPrice.toFixed(2),
         openPrice: regularMarketOpen.toFixed(2),
         highPrice: regularMarketDayHigh.toFixed(2),
@@ -37,8 +54,9 @@ export async function GET(
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch {
-    return new Response(
+  } catch (error) {
+    console.error("Erro ao buscar dados da ação:", error);
+    return new NextResponse(
       JSON.stringify({
         error: "Erro ao buscar dados da ação. Tente novamente mais tarde.",
       }),
