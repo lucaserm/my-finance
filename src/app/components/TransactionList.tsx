@@ -1,4 +1,4 @@
-import { Transaction } from "@/app/components/TransactionItem";
+import { Transaction } from "@/app/(pages)/transactions/page";
 import { formatCurrency } from "@/app/utils/formatCurrency";
 
 interface Props {
@@ -15,7 +15,8 @@ export default function TransactionList({
       {transactions.map((transaction) => (
         <li key={transaction.id} className="flex justify-between mb-2">
           <span>
-            {transaction.description}: {formatCurrency(transaction.amount)}
+            {transaction.description}:{" "}
+            {formatCurrency(parseFloat(transaction.amount))}
           </span>
           <button
             className="text-red-500"

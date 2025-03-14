@@ -1,14 +1,22 @@
 "use client";
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation"; // Importando o useRouter para redirecionamento
 import { formatCurrencyByCurrency } from "@/app/utils/formatCurrency";
+import { useCallback, useState } from "react";
+
+interface Stock {
+  symbol: string;
+  price: number;
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  currency: string;
+}
 
 export default function Home() {
-  const listCurrencies = ["BRL", "USD"]; // Definindo a lista de moedas
-  const [stockSymbol, setStockSymbol] = useState(""); // Símbolo inicial da ação
-  const [currency, setCurrency] = useState(listCurrencies[0]); // Estado da moeda
-  const [stockData, setStockData] = useState<any>(null); // Dados da ação
-  const [loading, setLoading] = useState(false); // Estado de carregamento
+  const listCurrencies = ["BRL", "USD"];
+  const [stockSymbol, setStockSymbol] = useState("");
+  const [currency, setCurrency] = useState(listCurrencies[0]);
+  const [stockData, setStockData] = useState<Stock | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Função para fazer a requisição à API
   const fetchStock = useCallback(async () => {
@@ -24,6 +32,8 @@ export default function Home() {
         setStockData(data);
       }
     } catch (e) {
+      // Estado de carregamento
+
       console.log(e);
       alert("Erro ao buscar dados da ação. Tente novamente.");
       setStockData(null); // Limpa os dados da ação em caso de erro
@@ -72,7 +82,10 @@ export default function Home() {
       {/* Indicador de Loading */}
       {loading && (
         <div className="flex justify-center mb-6">
-          <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full border-t-blue-500 border-gray-200" role="status">
+          <div
+            className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full border-t-blue-500 border-gray-200"
+            role="status"
+          >
             <span className="visually-hidden"></span>
           </div>
         </div>
@@ -81,23 +94,51 @@ export default function Home() {
       {/* Dados da ação */}
       {stockData && !loading && (
         <div>
-          <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">{stockData.symbol}</h1>
+          <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
+            {stockData.symbol}
+          </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-100 p-4 rounded-lg shadow-md">
               <div className="font-semibold text-blue-600">Preço Atual:</div>
-              <div>{formatCurrencyByCurrency(parseFloat(stockData.price), stockData.currency)}</div>
+              <div>
+                {formatCurrencyByCurrency(
+                  parseFloat(stockData.price.toString()),
+                  stockData.currency
+                )}
+              </div>
             </div>
             <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">Preço de Abertura:</div>
-              <div>{formatCurrencyByCurrency(parseFloat(stockData.openPrice), stockData.currency)}</div>
+              <div className="font-semibold text-blue-600">
+                Preço de Abertura:
+              </div>
+              <div>
+                {formatCurrencyByCurrency(
+                  parseFloat(stockData.openPrice.toString()),
+                  stockData.currency
+                )}
+              </div>
             </div>
             <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">Preço Máximo do Dia:</div>
-              <div>{formatCurrencyByCurrency(parseFloat(stockData.highPrice), stockData.currency)}</div>
+              <div className="font-semibold text-blue-600">
+                Preço Máximo do Dia:
+              </div>
+              <div>
+                {formatCurrencyByCurrency(
+                  parseFloat(stockData.highPrice.toString()),
+                  stockData.currency
+                )}
+              </div>
             </div>
             <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">Preço Mínimo do Dia:</div>
-              <div>{formatCurrencyByCurrency(parseFloat(stockData.lowPrice), stockData.currency)}</div>
+              <div className="font-semibold text-blue-600">
+                Preço Mínimo do Dia:
+              </div>
+              <div>
+                {formatCurrencyByCurrency(
+                  parseFloat(stockData.lowPrice.toString()),
+                  stockData.currency
+                )}
+              </div>
             </div>
           </div>
         </div>
