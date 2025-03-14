@@ -1,9 +1,14 @@
+import { Category } from "@/app/(pages)/categories/page";
 import { useState } from "react";
 
-export default function CategoryForm({ addCategory }) {
+export interface ICategoryForm {
+  addCategory: (newCategory: Category) => void;
+}
+
+export default function CategoryForm({ addCategory }: ICategoryForm) {
   const [newCategory, setNewCategory] = useState({ name: "", isIncome: true });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addCategory(newCategory);
     setNewCategory({ name: "", isIncome: true });
@@ -14,7 +19,9 @@ export default function CategoryForm({ addCategory }) {
       <input
         type="text"
         value={newCategory.name}
-        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+        onChange={(e) =>
+          setNewCategory({ ...newCategory, name: e.target.value })
+        }
         placeholder="Nome da Categoria"
         className="border rounded p-2"
       />
@@ -22,11 +29,16 @@ export default function CategoryForm({ addCategory }) {
         <input
           type="checkbox"
           checked={newCategory.isIncome}
-          onChange={(e) => setNewCategory({ ...newCategory, isIncome: e.target.checked })}
+          onChange={(e) =>
+            setNewCategory({ ...newCategory, isIncome: e.target.checked })
+          }
         />
         Entrada
       </label>
-      <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
+      <button
+        type="submit"
+        className="bg-green-500 text-white px-4 py-2 rounded"
+      >
         Adicionar
       </button>
     </form>

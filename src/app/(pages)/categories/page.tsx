@@ -1,25 +1,50 @@
 "use client";
-import { useState } from "react";
 import CategoryForm from "@/app/components/CategoryForm";
+import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function CategoriesPage() {
-  const [incomeCategories, setIncomeCategories] = useState([
-    { id: "1", name: "Salário" },
-    { id: "2", name: "VR" },
-  ]);
+export interface Category {
+  name: string;
+  isIncome: boolean;
+}
 
-  const [expenseCategories, setExpenseCategories] = useState([
+interface IIncomeCategories {
+  id: string;
+  name: string;
+}
+
+interface IExpenseCategories {
+  id: string;
+  name: string;
+}
+
+export default function CategoriesPage() {
+  const [incomeCategories, setIncomeCategories] = useState<IIncomeCategories[]>(
+    [
+      { id: "1", name: "Salário" },
+      { id: "2", name: "VR" },
+    ]
+  );
+
+  const [expenseCategories, setExpenseCategories] = useState<
+    IExpenseCategories[]
+  >([
     { id: "1", name: "Alimentação" },
     { id: "2", name: "Transporte" },
   ]);
 
-  const addCategory = (newCategory) => {
+  const addCategory = (newCategory: Category) => {
     if (newCategory.isIncome) {
-      setIncomeCategories([...incomeCategories, { ...newCategory, id: (incomeCategories.length + 1).toString() }]);
+      setIncomeCategories([
+        ...incomeCategories,
+        { ...newCategory, id: (incomeCategories.length + 1).toString() },
+      ]);
     } else {
-      setExpenseCategories([...expenseCategories, { ...newCategory, id: (expenseCategories.length + 1).toString() }]);
+      setExpenseCategories([
+        ...expenseCategories,
+        { ...newCategory, id: (expenseCategories.length + 1).toString() },
+      ]);
     }
   };
 

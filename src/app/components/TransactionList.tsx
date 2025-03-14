@@ -1,6 +1,15 @@
+import { Transaction } from "@/app/components/TransactionItem";
 import { formatCurrency } from "@/app/utils/formatCurrency";
 
-export default function TransactionList({ transactions, removeTransaction }) {
+interface Props {
+  transactions: Transaction[];
+  removeTransaction: (id: string) => void;
+}
+
+export default function TransactionList({
+  transactions,
+  removeTransaction,
+}: Props) {
   return (
     <ul className="border border-gray-200 rounded p-4">
       {transactions.map((transaction) => (
