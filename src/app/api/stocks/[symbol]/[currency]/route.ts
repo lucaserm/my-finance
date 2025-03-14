@@ -1,4 +1,4 @@
-import yahooFinance from 'yahoo-finance2';
+import yahooFinance from "yahoo-finance2";
 
 export async function GET(
   request: Request,
@@ -16,11 +16,11 @@ export async function GET(
     const stockData = await yahooFinance.quote(symbolFormatted);
 
     const {
-      currency = 'USD',  // Valor padrão para a moeda
-      regularMarketPrice = 0,  // Preço atual
-      regularMarketOpen = 0,   // Preço de abertura
+      currency = "USD", // Valor padrão para a moeda
+      regularMarketPrice = 0, // Preço atual
+      regularMarketOpen = 0, // Preço de abertura
       regularMarketDayHigh = 0, // Preço máximo do dia
-      regularMarketDayLow = 0,  // Preço mínimo do dia
+      regularMarketDayLow = 0, // Preço mínimo do dia
     } = stockData;
 
     return new Response(
@@ -34,18 +34,17 @@ export async function GET(
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (error: any) {
-    console.error("Erro ao buscar dados da ação: " + error.message);
+  } catch {
     return new Response(
       JSON.stringify({
         error: "Erro ao buscar dados da ação. Tente novamente mais tarde.",
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
