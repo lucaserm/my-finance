@@ -22,7 +22,9 @@ export default function Home() {
   const fetchStock = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/stocks/${stockSymbol}/${currency}`);
+      const response = await fetch(
+        `/api/stocks/?symbol=${stockSymbol}&currency=${currency}`
+      );
       const data = await response.json();
 
       if (data.error) {

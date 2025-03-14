@@ -544,7 +544,9 @@ export default function InvestmentsPage() {
   const fetchStock = useCallback(
     async (stock: string, currency: string) => {
       try {
-        const response = await fetch(`/api/stocks/${stock}/${currency}`);
+        const response = await fetch(
+          `/api/stocks?symbol=${stock}&currency=${currency}`
+        );
         const data = await response.json();
 
         if (data.error) {
@@ -600,7 +602,9 @@ export default function InvestmentsPage() {
 
         if (investment.currency === "USD") {
           try {
-            const response = await fetch(`/api/stocks/USDBRL=X/USD`);
+            const response = await fetch(
+              `/api/stocks?symbol=USDBRL=X&currency=USD`
+            );
             const data = await response.json();
             purchasePrice *= data.price;
           } catch {
