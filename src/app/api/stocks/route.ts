@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
 
 export async function GET(request: Request) {
-  // Extract query parameters from the URL
   const url = new URL(request.url);
   const symbol = url.searchParams.get("symbol");
   const currency = url.searchParams.get("currency");
 
-  // Validate required parameters
   if (!symbol || !currency) {
     return new NextResponse(
       JSON.stringify({
@@ -20,34 +18,29 @@ export async function GET(request: Request) {
     );
   }
 
-  // Format the symbol based on the currency
   let symbolFormatted = symbol.toUpperCase();
   if (currency === "BRL") {
-    symbolFormatted = symbol + ".SA";
+    symbolFormatted = `${symbol}.SA`;
   }
 
   try {
-    // Fetch stock data from Yahoo Finance
     const stockData = await yahooFinance.quote(symbolFormatted);
-
-    // Destructure the required fields from the stock data
     const {
-      currency: stockCurrency = "USD", // Default to USD if not provided
-      regularMarketPrice = 0, // Current price
-      regularMarketOpen = 0, // Opening price
-      regularMarketDayHigh = 0, // Daily high price
-      regularMarketDayLow = 0, // Daily low price
+      currency: stockCurrency = "USD",
+      regularMarketPrice: stockCurrentPrice = 0,
+      regularMarketOpen: stockOpeningPrice = 0,
+      regularMarketDayHigh: stockDailyHighPrice = 0,
+      regularMarketDayLow: stockDailyLowPrice = 0,
     } = stockData;
 
-    // Return the response with the stock data
     return new NextResponse(
       JSON.stringify({
         symbol,
         currency: stockCurrency,
-        price: regularMarketPrice.toFixed(2),
-        openPrice: regularMarketOpen.toFixed(2),
-        highPrice: regularMarketDayHigh.toFixed(2),
-        lowPrice: regularMarketDayLow.toFixed(2),
+        price: stockCurrentPrice.toFixed(2),
+        openPrice: stockOpeningPrice.toFixed(2),
+        highPrice: stockDailyHighPrice.toFixed(2),
+        lowPrice: stockDailyLowPrice.toFixed(2),
       }),
       {
         status: 200,

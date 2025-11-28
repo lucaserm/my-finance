@@ -10,7 +10,7 @@ export async function GET(request: Request) {
       {
         status: 400,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
         {
           status: 404,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
         {
           status: 404,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     console.error("Erro ao buscar dados da CoinGecko:", error);
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 }

@@ -1,0 +1,16 @@
+volumes:
+  pgdata:
+networks:
+  postgres-net:
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: myfinance
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql

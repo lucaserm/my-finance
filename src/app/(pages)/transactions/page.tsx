@@ -1,61 +1,152 @@
 "use client";
-import TransactionForm, {
-  NewTransaction,
-} from "@/app/components/TransactionForm";
-import TransactionList from "@/app/components/TransactionList";
-import { useState } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-export interface Transaction extends NewTransaction {
-  id: string;
-  categoryId?: string;
-  date?: string;
-  amount: string;
-}
+import { Filter, Plus, Search } from "lucide-react";
+import { useState } from "react";
+
+import { Sidebar } from "@/components/sidebar";
+import { SummaryCards } from "@/components/transactions/summary-cards";
+import { TransactionForm } from "@/components/transactions/transaction-form";
+import { TransactionsTable } from "@/components/transactions/transactions-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Toaster } from "@/components/ui/toaster";
+import { useCreateTransaction } from "@/hooks/mutations/create-transaction";
+import { useDeleteTransaction } from "@/hooks/mutations/delete-transaction";
+import { useTransaction } from "@/hooks/queries/use-transaction";
+import { useToast } from "@/hooks/use-toast";
+import type { CreateTransaction } from "@/schemas/transaction";
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: "1",
-      amount: "123",
-      description: "Salário",
-      isIncome: true,
-      categoryId: "1",
-      date: new Date().toLocaleString(),
-    },
-    {
-      id: "2",
-      amount: "50",
-      description: "Supermercado",
-      isIncome: false,
-      categoryId: "1",
-      date: new Date().toLocaleString(),
-    },
-  ]);
+  const { data, isPending } = useTransaction();
+  const createTransactionMutation = useCreateTransaction();
+  const deleteTransactionMutation = useDeleteTransaction();
 
-  const addTransaction = (transaction: NewTransaction) => {
-    setTransactions((prevState) => [
-      ...prevState,
-      { ...transaction, id: (transactions.length + 1).toString() },
-    ]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">(
+    "all",
+  );
+  const { toast } = useToast();
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  const filteredTransactions =
+    data?.transactions.filter((t) => {
+      const matchesSearch = t.description
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      // || t.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = filterType === "all" || t.type === filterType;
+      return matchesSearch && matchesType;
+    }) || [];
+
+  const totalIncome =
+    data?.transactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amountInCents, 0) || 0;
+
+  const totalExpenses =
+    data?.transactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amountInCents, 0) || 0;
+
+  const handleSave = async (transaction: CreateTransaction) => {
+    const newTransaction: CreateTransaction = {
+      ...transaction,
+    };
+    await createTransactionMutation.mutateAsync(newTransaction);
+    toast({
+      title: "Transação adicionada!",
+      description: `${transaction.type === "income" ? "Entrada" : "Saída"} de ${transaction.amountInCents.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+    });
   };
 
-  const removeTransaction = (id: string) => {
-    setTransactions(
-      transactions.filter((transaction) => transaction.id !== id)
-    );
+  const handleDelete = async (transactionId: string) => {
+    await deleteTransactionMutation.mutateAsync({ transactionId });
+    toast({
+      title: "Transação removida",
+      description: "A transação foi excluída com sucesso.",
+    });
   };
 
   return (
-    <div className="p-8">
-      <ToastContainer />
-      <h1 className="text-xl font-bold mb-4">Transações</h1>
-      <TransactionList
-        transactions={transactions}
-        removeTransaction={removeTransaction}
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-bold text-2xl text-foreground">Transações</h1>
+              <p className="text-muted-foreground">
+                Gerencie suas entradas e saídas
+              </p>
+            </div>
+            <Button
+              onClick={() => setIsFormOpen(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Transação
+            </Button>
+          </div>
+
+          <SummaryCards
+            income={totalIncome / 100}
+            expenses={totalExpenses / 100}
+          />
+
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Buscar transação..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="border-border bg-card pl-10"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-muted-foreground" />
+              <Select
+                value={filterType}
+                onValueChange={(value) =>
+                  setFilterType(value as "all" | "income" | "expense")
+                }
+              >
+                <SelectTrigger className="w-[150px] border-border bg-card">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="income">Entradas</SelectItem>
+                  <SelectItem value="expense">Saídas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <TransactionsTable
+            transactions={filteredTransactions}
+            onDelete={handleDelete}
+          />
+        </div>
+      </main>
+
+      <TransactionForm
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSave={handleSave}
       />
-      <TransactionForm addTransaction={addTransaction} />
+      <Toaster />
     </div>
   );
 }

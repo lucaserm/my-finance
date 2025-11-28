@@ -1,150 +1,72 @@
 "use client";
-import { formatCurrencyByCurrency } from "@/app/utils/formatCurrency";
-import { useCallback, useState } from "react";
 
-interface Stock {
-  symbol: string;
-  price: number;
-  openPrice: number;
-  highPrice: number;
-  lowPrice: number;
-  currency: string;
-}
+import { PortfolioChart } from "@/components/dashboard/portfolio-chart";
+import { RecentTransactions } from "@/components/dashboard/recent-transactions";
+import { StatsCards } from "@/components/dashboard/stats-cards";
+import { TopAssets } from "@/components/dashboard/top-assets";
+import { Sidebar } from "@/components/sidebar";
+import { useTransaction } from "@/hooks/queries/use-transaction";
+import { generatePortfolioHistory, mockPortfolio } from "@/lib/mock-data";
 
-export default function Home() {
-  const listCurrencies = ["BRL", "USD"];
-  const [stockSymbol, setStockSymbol] = useState("");
-  const [currency, setCurrency] = useState(listCurrencies[0]);
-  const [stockData, setStockData] = useState<Stock | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function DashboardPage() {
+  const { data } = useTransaction();
 
-  // Função para fazer a requisição à API
-  const fetchStock = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `/api/stocks/?symbol=${stockSymbol}&currency=${currency}`
-      );
-      const data = await response.json();
+  const portfolioHistory = generatePortfolioHistory();
 
-      if (data.error) {
-        alert(data.error); // Se houver erro, exibe mensagem
-        setStockData(null); // Limpa os dados da ação em caso de erro
-      } else {
-        setStockData(data);
-      }
-    } catch (e) {
-      // Estado de carregamento
+  const totalPortfolioValue = mockPortfolio.reduce(
+    (sum, item) => sum + item.currentValue,
+    0,
+  );
 
-      console.log(e);
-      alert("Erro ao buscar dados da ação. Tente novamente.");
-      setStockData(null); // Limpa os dados da ação em caso de erro
-    } finally {
-      setLoading(false); // Finaliza o carregamento
-    }
-  }, [stockSymbol, currency]); // Certificando-se de que o símbolo e a moeda são dependências
+  const totalProfit = mockPortfolio.reduce((sum, item) => sum + item.profit, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchStock(); // Faz a requisição para pegar os dados da ação
-  };
+  const portfolioChangePercent =
+    (totalProfit / (totalPortfolioValue - totalProfit)) * 100;
+
+  const monthlyIncome =
+    (data?.transactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amountInCents, 0) || 0) / 100;
+
+  const monthlyExpenses =
+    (data?.transactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amountInCents, 0) || 0) / 100;
+
+  const totalBalance = monthlyIncome - monthlyExpenses + totalPortfolioValue;
 
   return (
-    <div className="max-w-3xl mx-auto mt-5 p-6 bg-white rounded-lg shadow-lg">
-      {/* Formulário de busca */}
-      <form onSubmit={handleSubmit}>
-        <div className="flex justify-center mb-6">
-          <input
-            type="text"
-            value={stockSymbol}
-            onChange={(e) => setStockSymbol(e.target.value.toUpperCase())} // Atualiza o símbolo
-            placeholder="Digite o símbolo da ação"
-            className="w-64 p-3 text-lg border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div>
+            <h1 className="font-bold text-2xl text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Visão geral das suas finanças
+            </p>
+          </div>
+
+          <StatsCards
+            totalBalance={totalBalance}
+            monthlyIncome={monthlyIncome}
+            monthlyExpenses={monthlyExpenses}
+            portfolioValue={totalPortfolioValue}
+            portfolioChange={portfolioChangePercent}
           />
-          <select
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="p-3 text-lg border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {listCurrencies.map((curr) => (
-              <option key={curr} value={curr}>
-                {curr}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="px-6 py-3 text-lg font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Buscar Dados
-          </button>
-        </div>
-      </form>
 
-      {/* Indicador de Loading */}
-      {loading && (
-        <div className="flex justify-center mb-6">
-          <div
-            className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full border-t-blue-500 border-gray-200"
-            role="status"
-          >
-            <span className="visually-hidden"></span>
-          </div>
-        </div>
-      )}
-
-      {/* Dados da ação */}
-      {stockData && !loading && (
-        <div>
-          <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
-            {stockData.symbol}
-          </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">Preço Atual:</div>
-              <div>
-                {formatCurrencyByCurrency(
-                  parseFloat(stockData.price.toString()),
-                  stockData.currency
-                )}
-              </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <PortfolioChart data={portfolioHistory} />
             </div>
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">
-                Preço de Abertura:
-              </div>
-              <div>
-                {formatCurrencyByCurrency(
-                  parseFloat(stockData.openPrice.toString()),
-                  stockData.currency
-                )}
-              </div>
-            </div>
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">
-                Preço Máximo do Dia:
-              </div>
-              <div>
-                {formatCurrencyByCurrency(
-                  parseFloat(stockData.highPrice.toString()),
-                  stockData.currency
-                )}
-              </div>
-            </div>
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="font-semibold text-blue-600">
-                Preço Mínimo do Dia:
-              </div>
-              <div>
-                {formatCurrencyByCurrency(
-                  parseFloat(stockData.lowPrice.toString()),
-                  stockData.currency
-                )}
-              </div>
+            <div>
+              <TopAssets portfolio={mockPortfolio} />
             </div>
           </div>
+
+          <RecentTransactions transactions={data?.transactions ?? []} />
         </div>
-      )}
+      </main>
     </div>
   );
 }
