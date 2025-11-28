@@ -1,132 +1,104 @@
 import type { Transaction } from "@/schemas/transaction";
+import { formatDate } from "@/utils/formatDate";
 
-import type {
-  Asset,
-  CalendarEvent,
-  ChartDataPoint,
-  PortfolioItem,
-} from "./types";
+import type { Asset, ChartDataPoint, PortfolioItem } from "./types";
 
 export const mockAssets: Asset[] = [
   {
-    id: "1",
     symbol: "PETR4",
-    name: "Petrobras",
-    type: "BRL",
+    currency: "BRL",
     price: 38.45,
-    change24h: 0.85,
-    changePercent24h: 2.26,
-    logo: "🛢️",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "2",
     symbol: "VALE3",
-    name: "Vale",
-    type: "BRL",
+    currency: "BRL",
     price: 62.3,
-    change24h: -1.2,
-    changePercent24h: -1.89,
-    logo: "⛏️",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "3",
     symbol: "ITUB4",
-    name: "Itaú Unibanco",
-    type: "BRL",
+    currency: "BRL",
     price: 32.15,
-    change24h: 0.45,
-    changePercent24h: 1.42,
-    logo: "🏦",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "4",
     symbol: "BBDC4",
-    name: "Bradesco",
-    type: "BRL",
+    currency: "BRL",
     price: 12.8,
-    change24h: -0.15,
-    changePercent24h: -1.16,
-    logo: "🏦",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "5",
     symbol: "AAPL",
-    name: "Apple",
-    type: "USD",
+    currency: "USD",
     price: 189.25,
-    change24h: 2.3,
-    changePercent24h: 1.23,
-    logo: "🍎",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "6",
     symbol: "GOOGL",
-    name: "Alphabet",
-    type: "USD",
+    currency: "USD",
     price: 141.8,
-    change24h: -0.95,
-    changePercent24h: -0.67,
-    logo: "🔍",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "7",
     symbol: "MSFT",
-    name: "Microsoft",
-    type: "USD",
+    currency: "USD",
     price: 378.9,
-    change24h: 4.5,
-    changePercent24h: 1.2,
-    logo: "💻",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "8",
     symbol: "TSLA",
-    name: "Tesla",
-    type: "USD",
+    currency: "USD",
     price: 248.5,
-    change24h: -5.2,
-    changePercent24h: -2.05,
-    logo: "🚗",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "9",
     symbol: "BTC",
-    name: "Bitcoin",
-    type: "CRYPTO",
+    currency: "CRYPTO",
     price: 67450.0,
-    change24h: 1250.0,
-    changePercent24h: 1.89,
-    logo: "₿",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "10",
     symbol: "ETH",
-    name: "Ethereum",
-    type: "CRYPTO",
+    currency: "CRYPTO",
     price: 3520.0,
-    change24h: -45.0,
-    changePercent24h: -1.26,
-    logo: "⟠",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "11",
     symbol: "SOL",
-    name: "Solana",
-    type: "CRYPTO",
+    currency: "CRYPTO",
     price: 145.8,
-    change24h: 8.5,
-    changePercent24h: 6.19,
-    logo: "◎",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
   {
-    id: "12",
     symbol: "ADA",
-    name: "Cardano",
-    type: "CRYPTO",
+    currency: "CRYPTO",
     price: 0.45,
-    change24h: 0.02,
-    changePercent24h: 4.65,
-    logo: "₳",
+    highPrice: 39.0,
+    lowPrice: 37.5,
+    openPrice: 38.0,
   },
 ];
 
@@ -264,39 +236,6 @@ export const mockTransactions: Transaction[] = [
   },
 ];
 
-export const mockCalendarEvents: CalendarEvent[] = [
-  {
-    id: "1",
-    title: "Pagamento Aluguel",
-    date: "2025-11-28",
-    type: "bill",
-    amount: 2500,
-  },
-  {
-    id: "2",
-    title: "Receber Salário",
-    date: "2025-11-05",
-    type: "income",
-    amount: 8500,
-  },
-  {
-    id: "3",
-    title: "Dividendos VALE3",
-    date: "2025-11-10",
-    type: "investment",
-    amount: 320,
-  },
-  {
-    id: "4",
-    title: "Cartão de Crédito",
-    date: "2025-11-15",
-    type: "bill",
-    amount: 1850,
-  },
-  { id: "5", title: "Revisar Portfólio", date: "2025-11-01", type: "reminder" },
-  { id: "6", title: "Internet", date: "2025-11-20", type: "bill", amount: 150 },
-];
-
 export const generatePortfolioHistory = (): ChartDataPoint[] => {
   const data: ChartDataPoint[] = [];
   let value = 35000;
@@ -307,7 +246,7 @@ export const generatePortfolioHistory = (): ChartDataPoint[] => {
     date.setDate(date.getDate() - i);
     value = value + (Math.random() - 0.45) * 800;
     data.push({
-      date: date.toISOString().split("T")[0],
+      date: formatDate(date, { locale: "pt-BR", format: "iso" }),
       value: Math.max(value, 30000),
     });
   }
@@ -324,7 +263,7 @@ export const generateAssetHistory = (basePrice: number): ChartDataPoint[] => {
     date.setDate(date.getDate() - i);
     price = price + (Math.random() - 0.48) * (basePrice * 0.02);
     data.push({
-      date: date.toISOString().split("T")[0],
+      date: formatDate(date, { locale: "pt-BR", format: "iso" }),
       value: Math.max(price, basePrice * 0.7),
     });
   }

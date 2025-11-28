@@ -61,7 +61,7 @@ export function BuyModal({ asset, open, onClose, onConfirm }: BuyModalProps) {
       <DialogContent className="border-border bg-card">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-foreground">
-            <span className="text-2xl">{asset.logo}</span>
+            <span className="text-2xl">{/* {asset.logo} */}🎯</span>
             Comprar {asset.symbol}
           </DialogTitle>
         </DialogHeader>
@@ -84,7 +84,7 @@ export function BuyModal({ asset, open, onClose, onConfirm }: BuyModalProps) {
 
           <div className="space-y-2">
             <Label htmlFor="price" className="text-foreground">
-              Preço de Compra ({asset.type === "BRL" ? "R$" : "$"})
+              Preço de Compra ({asset.currency === "BRL" ? "R$" : "$"})
             </Label>
             <Input
               id="price"
@@ -118,10 +118,10 @@ export function BuyModal({ asset, open, onClose, onConfirm }: BuyModalProps) {
               <p className="text-muted-foreground text-sm">Valor Total</p>
               <p className="font-bold text-foreground text-xl">
                 {totalValue.toLocaleString(
-                  asset.type === "BRL" ? "pt-BR" : "en-US",
+                  asset.currency === "BRL" ? "pt-BR" : "en-US",
                   {
                     style: "currency",
-                    currency: asset.type === "BRL" ? "BRL" : "USD",
+                    currency: asset.currency === "BRL" ? "BRL" : "USD",
                   },
                 )}
               </p>

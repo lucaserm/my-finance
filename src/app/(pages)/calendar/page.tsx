@@ -9,44 +9,51 @@ import { UpcomingEvents } from "@/components/calendar/upcoming-events";
 import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
+import { useCreateTransaction } from "@/hooks/mutations/create-transaction";
+import { useUpdateTransaction } from "@/hooks/mutations/update-transaction";
+import { useTransaction } from "@/hooks/queries/use-transaction";
 import { useToast } from "@/hooks/use-toast";
-import { mockCalendarEvents } from "@/lib/mock-data";
-import type { CalendarEvent } from "@/lib/types";
+import type { CreateTransaction, Transaction } from "@/schemas/transaction";
 
 export default function CalendarPage() {
-  const [events, setEvents] = useState<CalendarEvent[]>(mockCalendarEvents);
+  const createTransactionMutation = useCreateTransaction();
+  const updateTransactionMutation = useUpdateTransaction();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | undefined>();
-  const [editEvent, setEditEvent] = useState<CalendarEvent | null>(null);
+  const [editEvent, setEditEvent] = useState<Transaction | null>(null);
+  const { data } = useTransaction();
   const { toast } = useToast();
 
-  const handleSaveEvent = (eventData: Omit<CalendarEvent, "id">) => {
+  const handleSaveEvent = (eventData: CreateTransaction) => {
+    createTransactionMutation.mutate(eventData);
+    toast({
+      title: "Evento criado!",
+      description: `"${eventData.description}" foi adicionado ao calendário.`,
+    });
+    setSelectedDate(undefined);
+  };
+
+  const handleUpdateEvent = (eventData: Transaction) => {
     if (editEvent) {
-      setEvents(
-        events.map((e) =>
-          e.id === editEvent.id ? { ...eventData, id: editEvent.id } : e,
-        ),
-      );
+      updateTransactionMutation.mutate({
+        transactionId: editEvent.id,
+        data: {
+          description: eventData.description,
+          transactedAt: eventData.transactedAt,
+          type: eventData.type,
+          amountInCents: eventData.amountInCents,
+        },
+      });
       toast({
         title: "Evento atualizado!",
-        description: `"${eventData.title}" foi atualizado com sucesso.`,
-      });
-    } else {
-      const newEvent: CalendarEvent = {
-        ...eventData,
-        id: Date.now().toString(),
-      };
-      setEvents([...events, newEvent]);
-      toast({
-        title: "Evento criado!",
-        description: `"${eventData.title}" foi adicionado ao calendário.`,
+        description: `"${eventData.description}" foi atualizado com sucesso.`,
       });
     }
     setEditEvent(null);
     setSelectedDate(undefined);
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
+  const handleEventClick = (event: Transaction) => {
     setEditEvent(event);
     setIsFormOpen(true);
   };
@@ -58,9 +65,12 @@ export default function CalendarPage() {
   };
 
   const handleEventDrop = (eventId: string, newDate: string) => {
-    setEvents(
-      events.map((e) => (e.id === eventId ? { ...e, date: newDate } : e)),
-    );
+    updateTransactionMutation.mutate({
+      transactionId: eventId,
+      data: {
+        transactedAt: new Date(newDate),
+      },
+    });
     toast({
       title: "Evento movido!",
       description: "O evento foi reagendado com sucesso.",
@@ -94,17 +104,20 @@ export default function CalendarPage() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-            <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
+            <div className="xl:col-span-3">
               <CalendarGrid
-                events={events}
+                events={data?.transactions || []}
                 onEventClick={handleEventClick}
                 onDateClick={handleDateClick}
                 onEventDrop={handleEventDrop}
               />
             </div>
             <div>
-              <UpcomingEvents events={events} onEventClick={handleEventClick} />
+              <UpcomingEvents
+                events={data?.transactions || []}
+                onEventClick={handleEventClick}
+              />
             </div>
           </div>
         </div>
@@ -114,6 +127,7 @@ export default function CalendarPage() {
         open={isFormOpen}
         onClose={handleCloseForm}
         onSave={handleSaveEvent}
+        onUpdate={handleUpdateEvent}
         initialDate={selectedDate}
         editEvent={editEvent}
       />

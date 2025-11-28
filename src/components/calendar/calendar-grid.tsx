@@ -5,21 +5,22 @@ import type React from "react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import type { CalendarEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import type { Transaction } from "@/schemas/transaction";
+import { formatDate } from "@/utils/formatDate";
 
 interface CalendarGridProps {
-  events: CalendarEvent[];
-  onEventClick: (event: CalendarEvent) => void;
+  events: Transaction[];
+  onEventClick: (event: Transaction) => void;
   onDateClick: (date: string) => void;
   onEventDrop: (eventId: string, newDate: string) => void;
 }
 
 const eventColors = {
-  bill: "bg-destructive/20 text-destructive border-destructive/30",
   income: "bg-chart-1/20 text-chart-1 border-chart-1/30",
-  investment: "bg-chart-2/20 text-chart-2 border-chart-2/30",
-  reminder: "bg-chart-3/20 text-chart-3 border-chart-3/30",
+  expense: "bg-destructive/20 text-destructive border-destructive/30",
+  // investment: "bg-chart-2/20 text-chart-2 border-chart-2/30",
+  // reminder: "bg-chart-3/20 text-chart-3 border-chart-3/30",
 };
 
 export function CalendarGrid({
@@ -29,7 +30,7 @@ export function CalendarGrid({
   onEventDrop,
 }: CalendarGridProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
+  const [draggedEvent, setDraggedEvent] = useState<Transaction | null>(null);
 
   const { days, monthName, year } = useMemo(() => {
     const firstDay = new Date(
@@ -78,8 +79,12 @@ export function CalendarGrid({
   }, [currentDate]);
 
   const getEventsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0];
-    return events.filter((e) => e.date === dateStr);
+    return events.filter((e) => {
+      return (
+        formatDate(e.transactedAt, { dateStyle: "short" })
+        === formatDate(date, { dateStyle: "short" })
+      );
+    });
   };
 
   const handlePrevMonth = () => {
@@ -94,7 +99,7 @@ export function CalendarGrid({
     );
   };
 
-  const handleDragStart = (e: React.DragEvent, event: CalendarEvent) => {
+  const handleDragStart = (e: React.DragEvent, event: Transaction) => {
     setDraggedEvent(event);
     e.dataTransfer.effectAllowed = "move";
   };
@@ -152,10 +157,9 @@ export function CalendarGrid({
 
         {days.map(({ date, isCurrentMonth }, index) => {
           const dayEvents = getEventsForDate(date);
-          const dateStr = date.toISOString().split("T")[0];
-
           return (
             <div
+              role="application"
               key={index}
               className={cn(
                 "min-h-[100px] border-border border-r border-b p-1 transition-colors",
@@ -178,7 +182,10 @@ export function CalendarGrid({
                 </span>
                 {isCurrentMonth && (
                   <button
-                    onClick={() => onDateClick(dateStr)}
+                    type="button"
+                    onClick={() =>
+                      onDateClick(date.toISOString().split("T")[0])
+                    }
                     className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   >
                     <Plus className="h-3 w-3" />
@@ -187,7 +194,8 @@ export function CalendarGrid({
               </div>
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map((event) => (
-                  <div
+                  <button
+                    type="button"
                     key={event.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, event)}
@@ -196,10 +204,10 @@ export function CalendarGrid({
                       "cursor-grab truncate rounded border px-1.5 py-0.5 text-xs active:cursor-grabbing",
                       eventColors[event.type],
                     )}
-                    title={event.title}
+                    title={event.description}
                   >
-                    {event.title}
-                  </div>
+                    {event.description}
+                  </button>
                 ))}
                 {dayEvents.length > 3 && (
                   <div className="px-1 text-muted-foreground text-xs">

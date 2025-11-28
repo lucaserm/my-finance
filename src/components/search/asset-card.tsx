@@ -3,28 +3,29 @@
 import { Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
+import type { Stock } from "@/actions/stocks/get-stock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Asset, ChartDataPoint } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface AssetCardProps {
-  asset: Asset;
+  asset: Stock;
   chartData: ChartDataPoint[];
   onBuy: (asset: Asset) => void;
 }
 
 export function AssetCard({ asset, chartData, onBuy }: AssetCardProps) {
-  const isPositive = asset.changePercent24h >= 0;
+  const isPositive = asset.openPrice - asset.price >= 0;
 
   const formatPrice = (price: number) => {
-    if (asset.type === "USD") {
+    if (asset.currency === "USD") {
       return price.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
     }
-    if (asset.type === "BRL") {
+    if (asset.currency === "BRL") {
       return price.toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
@@ -43,25 +44,23 @@ export function AssetCard({ asset, chartData, onBuy }: AssetCardProps) {
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg">
-              {asset.logo}
+              {/* {asset.logo} */}🎯
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-foreground">
-                  {asset.symbol}
-                </h3>
+                <h3 className="font-semibold text-foreground">{asset.name}</h3>
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs",
-                    asset.type === "BRL" && "bg-chart-3/10 text-chart-3",
-                    asset.type === "USD" && "bg-chart-2/10 text-chart-2",
-                    asset.type === "CRYPTO" && "bg-primary/10 text-primary",
+                    asset.currency === "BRL" && "bg-chart-3/10 text-chart-3",
+                    asset.currency === "USD" && "bg-chart-2/10 text-chart-2",
+                    asset.currency === "CRYPTO" && "bg-primary/10 text-primary",
                   )}
                 >
-                  {asset.type}
+                  {asset.currency}
                 </span>
               </div>
-              <p className="text-muted-foreground text-sm">{asset.name}</p>
+              <p className="text-muted-foreground text-sm">{asset.symbol}</p>
             </div>
           </div>
           <Button
@@ -79,7 +78,7 @@ export function AssetCard({ asset, chartData, onBuy }: AssetCardProps) {
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient
-                  id={`gradient-${asset.id}`}
+                  id={`gradient-${asset.symbol}`}
                   x1="0"
                   y1="0"
                   x2="0"
@@ -115,7 +114,7 @@ export function AssetCard({ asset, chartData, onBuy }: AssetCardProps) {
                 }
                 strokeWidth={2}
                 fillOpacity={1}
-                fill={`url(#gradient-${asset.id})`}
+                fill={`url(#gradient-${asset.symbol})`}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -140,7 +139,7 @@ export function AssetCard({ asset, chartData, onBuy }: AssetCardProps) {
             )}
             <span>
               {isPositive ? "+" : ""}
-              {asset.changePercent24h.toFixed(2)}%
+              {(asset.openPrice - asset.price).toFixed(2)}%
             </span>
           </div>
         </div>

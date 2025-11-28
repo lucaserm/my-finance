@@ -60,7 +60,7 @@ export function PortfolioTable({
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm">
-                    {item.asset.logo}
+                    {/* {item.asset.logo} */}🎯
                   </div>
                   <div>
                     <p className="font-medium text-foreground">
@@ -76,13 +76,15 @@ export function PortfolioTable({
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs",
-                    item.asset.type === "BRL" && "bg-chart-3/10 text-chart-3",
-                    item.asset.type === "USD" && "bg-chart-2/10 text-chart-2",
-                    item.asset.type === "CRYPTO"
+                    item.asset.currency === "BRL"
+                      && "bg-chart-3/10 text-chart-3",
+                    item.asset.currency === "USD"
+                      && "bg-chart-2/10 text-chart-2",
+                    item.asset.currency === "CRYPTO"
                       && "bg-primary/10 text-primary",
                   )}
                 >
-                  {item.asset.type}
+                  {item.asset.currency}
                 </span>
               </TableCell>
               <TableCell className="text-right text-foreground">

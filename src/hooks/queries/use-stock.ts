@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getStock } from "@/actions/stocks/get-stock";
+import { type Currency, getStock } from "@/actions/stocks/get-stock";
 
 export const getUseStockQueryKey = () => ["stock"] as const;
 
@@ -9,7 +9,7 @@ export const useStock = ({
   currency,
 }: {
   symbol: string;
-  currency: string;
+  currency: Currency;
 }) => {
   return useQuery({
     queryKey: getUseStockQueryKey(),

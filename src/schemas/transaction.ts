@@ -1,6 +1,6 @@
-import z from "zod";
+import { z } from "zod";
 
-const transactionType = z.enum(["income", "expense"]);
+const transactionType = z.enum(["income", "expense", "investment"]);
 
 const transactionSchema = z.object({
   id: z.uuid(),
@@ -20,5 +20,7 @@ const createTransactionSchema = transactionSchema.omit({
   updatedAt: true,
 });
 
-export type CreateTransaction = z.infer<typeof createTransactionSchema>;
+export type TransactionType = z.infer<typeof transactionType>;
 export type Transaction = z.infer<typeof transactionSchema>;
+export type CreateTransaction = z.infer<typeof createTransactionSchema>;
+export type UpdateTransaction = Partial<Transaction>;

@@ -4,6 +4,7 @@ import { BarChart3, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface StatsCardsProps {
   totalBalance: number;
@@ -82,8 +83,8 @@ export function StatsCards({
             <div className="mt-4">
               <p className="text-muted-foreground text-sm">{stat.title}</p>
               <p className="mt-1 font-bold text-2xl text-foreground">
-                {stat.value.toLocaleString("pt-BR", {
-                  style: "currency",
+                {formatCurrency(stat.value, {
+                  locale: "pt-BR",
                   currency: "BRL",
                 })}
               </p>

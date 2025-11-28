@@ -12,25 +12,14 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartDataPoint } from "@/lib/types";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { formatDate } from "@/utils/formatDate";
 
 interface PortfolioChartProps {
   data: ChartDataPoint[];
 }
 
 export function PortfolioChart({ data }: PortfolioChartProps) {
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-  };
-
-  const formatValue = (value: number) => {
-    return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      minimumFractionDigits: 0,
-    });
-  };
-
   return (
     <Card className="border-border bg-card">
       <CardHeader>
@@ -57,14 +46,27 @@ export function PortfolioChart({ data }: PortfolioChartProps) {
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0 0)" />
               <XAxis
                 dataKey="date"
-                tickFormatter={formatDate}
+                tickFormatter={(date) =>
+                  formatDate(date, {
+                    locale: "pt-BR",
+                    format: "intl",
+                    day: "2-digit",
+                    month: "short",
+                  })
+                }
                 stroke="oklch(0.708 0 0)"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                tickFormatter={formatValue}
+                tickFormatter={(value) =>
+                  formatCurrency(value, {
+                    locale: "pt-BR",
+                    currency: "BRL",
+                    minimumFractionDigits: 0,
+                  })
+                }
                 stroke="oklch(0.708 0 0)"
                 fontSize={12}
                 tickLine={false}
@@ -79,8 +81,22 @@ export function PortfolioChart({ data }: PortfolioChartProps) {
                 }}
                 labelStyle={{ color: "oklch(0.985 0 0)" }}
                 itemStyle={{ color: "oklch(0.696 0.17 162.48)" }}
-                formatter={(value: number) => [formatValue(value), "Valor"]}
-                labelFormatter={(label) => formatDate(label)}
+                formatter={(value: number) => [
+                  formatCurrency(value, {
+                    locale: "pt-BR",
+                    currency: "BRL",
+                    minimumFractionDigits: 0,
+                  }),
+                  "Valor",
+                ]}
+                labelFormatter={(label) =>
+                  formatDate(label, {
+                    locale: "pt-BR",
+                    format: "intl",
+                    day: "2-digit",
+                    month: "short",
+                  })
+                }
               />
               <Area
                 type="monotone"

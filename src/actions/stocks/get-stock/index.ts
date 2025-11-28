@@ -1,37 +1,59 @@
-import yahooFinance from "yahoo-finance2";
+export type Currency = "USD" | "BRL" | "CRYPTO" | "ALL";
 
 interface GetStockProps {
   symbol: string;
-  currency: string;
+  currency: Currency;
 }
 
-export const getStock = async ({ symbol, currency }: GetStockProps) => {
+export interface Stock {
+  name: string;
+  symbol: string;
+  currency: Currency;
+  price: number;
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  dayChange: number;
+}
+
+export interface StockData {
+  stock: Stock | null;
+}
+
+export const getStock = async ({
+  symbol,
+  currency,
+}: GetStockProps): Promise<StockData> => {
+  symbol = symbol.toUpperCase();
   if (!symbol || !currency) {
     throw new Error('Parâmetros "symbol" e "currency" são obrigatórios.');
   }
 
-  let symbolFormatted = symbol.toUpperCase();
-  if (currency === "BRL") {
-    symbolFormatted = `${symbol}.SA`;
-  }
-
   try {
-    const stockData = await yahooFinance.quote(symbolFormatted);
-    const {
-      currency: stockCurrency = "USD",
-      regularMarketPrice: stockCurrentPrice = 0,
-      regularMarketOpen: stockOpeningPrice = 0,
-      regularMarketDayHigh: stockDailyHighPrice = 0,
-      regularMarketDayLow: stockDailyLowPrice = 0,
-    } = stockData;
+    const response = await fetch(
+      `/api/stocks?symbol=${symbol}&currency=${currency}`
+    );
+
+    if (!response.ok) {
+      return {
+        stock: null,
+      };
+    }
+
+    const { name, price, openPrice, highPrice, lowPrice, dayChange } =
+      await response.json();
 
     return {
-      symbol,
-      currency: stockCurrency,
-      price: stockCurrentPrice.toFixed(2),
-      openPrice: stockOpeningPrice.toFixed(2),
-      highPrice: stockDailyHighPrice.toFixed(2),
-      lowPrice: stockDailyLowPrice.toFixed(2),
+      stock: {
+        name,
+        symbol,
+        currency,
+        price: Number.parseFloat(Number.parseFloat(price).toFixed(2)),
+        openPrice: Number.parseFloat(Number.parseFloat(openPrice).toFixed(2)),
+        highPrice: Number.parseFloat(Number.parseFloat(highPrice).toFixed(2)),
+        lowPrice: Number.parseFloat(Number.parseFloat(lowPrice).toFixed(2)),
+        dayChange: Number.parseFloat(Number.parseFloat(dayChange).toFixed(2)),
+      },
     };
   } catch (error) {
     console.error("Erro ao buscar dados da ação:", error);

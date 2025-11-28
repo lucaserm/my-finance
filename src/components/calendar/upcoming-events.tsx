@@ -1,35 +1,41 @@
 "use client";
 
-import { Bell, Calendar, DollarSign, Receipt, TrendingUp } from "lucide-react";
+import { Calendar, DollarSign, Receipt } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { CalendarEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import type { Transaction } from "@/schemas/transaction";
+import { formatDate } from "@/utils/formatDate";
 
 interface UpcomingEventsProps {
-  events: CalendarEvent[];
-  onEventClick: (event: CalendarEvent) => void;
+  events: Transaction[];
+  onEventClick: (event: Transaction) => void;
 }
 
 const eventIcons = {
-  bill: Receipt,
   income: DollarSign,
-  investment: TrendingUp,
-  reminder: Bell,
+  expense: Receipt,
+  // investment: TrendingUp,
+  // reminder: Bell,
 };
 
 const eventColors = {
-  bill: "bg-destructive/10 text-destructive",
   income: "bg-chart-1/10 text-chart-1",
-  investment: "bg-chart-2/10 text-chart-2",
-  reminder: "bg-chart-3/10 text-chart-3",
+  expense: "bg-destructive/10 text-destructive",
+  // investment: "bg-chart-2/10 text-chart-2",
+  // reminder: "bg-chart-3/10 text-chart-3",
 };
 
 export function UpcomingEvents({ events, onEventClick }: UpcomingEventsProps) {
-  const today = new Date().toISOString().split("T")[0];
   const upcomingEvents = events
-    .filter((e) => e.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .filter(
+      (e) =>
+        formatDate(e.transactedAt, { dateStyle: "short" })
+        >= formatDate(new Date(), { dateStyle: "short" }),
+    )
+    .sort((a, b) =>
+      formatDate(a.transactedAt).localeCompare(formatDate(b.transactedAt)),
+    )
     .slice(0, 5);
 
   return (
@@ -50,10 +56,11 @@ export function UpcomingEvents({ events, onEventClick }: UpcomingEventsProps) {
             {upcomingEvents.map((event) => {
               const Icon = eventIcons[event.type];
               return (
-                <div
+                <button
+                  type="button"
                   key={event.id}
                   onClick={() => onEventClick(event)}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg bg-secondary/50 p-3 transition-colors hover:bg-secondary"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-secondary/50 p-3 text-left transition-colors hover:bg-secondary"
                 >
                   <div
                     className={cn("rounded-full p-2", eventColors[event.type])}
@@ -62,35 +69,33 @@ export function UpcomingEvents({ events, onEventClick }: UpcomingEventsProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-foreground text-sm">
-                      {event.title}
+                      {event.description}
                     </p>
                     <p className="text-muted-foreground text-xs">
-                      {new Date(event.date + "T12:00:00").toLocaleDateString(
-                        "pt-BR",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        },
-                      )}
+                      {formatDate(event.transactedAt, {
+                        timeZone: "America/Sao_Paulo",
+                        day: "2-digit",
+                        month: "short",
+                      })}
                     </p>
                   </div>
-                  {event.amount && (
+                  {event.amountInCents && (
                     <p
                       className={cn(
                         "font-semibold text-sm",
-                        event.type === "bill"
+                        event.type === "expense"
                           ? "text-destructive"
                           : "text-chart-1",
                       )}
                     >
-                      {event.type === "bill" ? "-" : "+"}
-                      {event.amount.toLocaleString("pt-BR", {
+                      {event.type === "expense" ? "-" : "+"}
+                      {(event.amountInCents / 100).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
                       })}
                     </p>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>

@@ -92,6 +92,7 @@ export const portfolioItemTable = pgTable("portfolio_item", {
 export const enumTransactionType = pgEnum("transaction_type", [
   "income",
   "expense",
+  "investment",
 ]);
 
 export const transactionTable = pgTable("transaction", {
@@ -104,7 +105,7 @@ export const transactionTable = pgTable("transaction", {
   type: enumTransactionType("type").notNull(),
   description: text("description").notNull(),
   amountInCents: bigint("amount_in_cents", { mode: "number" }).notNull(),
-  transactedAt: timestamp("transacted_at").notNull(),
+  transactedAt: timestamp("transacted_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

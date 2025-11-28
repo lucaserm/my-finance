@@ -19,61 +19,105 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { CalendarEvent } from "@/lib/types";
+import type {
+  CreateTransaction,
+  Transaction,
+  TransactionType,
+} from "@/schemas/transaction";
 
 interface EventFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, "id">) => void;
+  onUpdate: (event: Transaction) => void;
+  onSave: (event: CreateTransaction) => void;
   initialDate?: string;
-  editEvent?: CalendarEvent | null;
+  editEvent?: Transaction | null;
 }
 
 const eventTypes = [
-  { value: "bill", label: "Conta a Pagar", color: "text-destructive" },
   { value: "income", label: "Receita", color: "text-chart-1" },
-  { value: "investment", label: "Investimento", color: "text-chart-2" },
-  { value: "reminder", label: "Lembrete", color: "text-chart-3" },
+  { value: "expense", label: "Despesa", color: "text-destructive" },
+  // { value: "investment", label: "Investimento", color: "text-chart-2" },
+  // { value: "reminder", label: "Lembrete", color: "text-chart-3" },
 ];
 
 export function EventForm({
   open,
   onClose,
+  onUpdate,
   onSave,
   initialDate,
   editEvent,
 }: EventFormProps) {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [type, setType] = useState<CalendarEvent["type"]>("reminder");
-  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(
+    initialDate || new Date().toISOString().split("T")[0],
+  );
+  const [type, setType] = useState<TransactionType>("income");
+  const [amount, setAmount] = useState(0);
+  const [display, setDisplay] = useState("");
 
   useEffect(() => {
     if (editEvent) {
-      setTitle(editEvent.title);
-      setDate(editEvent.date);
+      setTitle(editEvent.description);
+      setDate(editEvent.transactedAt.toISOString().split("T")[0]);
       setType(editEvent.type);
-      setAmount(editEvent.amount?.toString() || "");
-    } else {
-      setTitle("");
-      setDate(initialDate || new Date().toISOString().split("T")[0]);
-      setType("reminder");
-      setAmount("");
+      setAmount(editEvent.amountInCents);
+      const formatted = (editEvent.amountInCents / 100).toLocaleString(
+        "pt-BR",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        },
+      );
+      setDisplay(formatted);
     }
-  }, [editEvent, initialDate, open]);
+  }, [editEvent]);
 
   const handleSave = () => {
     if (!title || !date || !type) return;
 
+    if (editEvent) {
+      onUpdate({
+        ...editEvent,
+        description: title,
+        transactedAt: new Date(date),
+        type,
+        amountInCents: amount,
+      });
+      onClose();
+      return;
+    }
+
     onSave({
-      title,
-      date,
+      description: title,
+      transactedAt: new Date(date),
       type,
-      amount: amount ? Number.parseFloat(amount) : undefined,
+      amountInCents: amount,
     });
 
     onClose();
   };
+
+  function handleChangeAmount(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, "");
+
+    if (!raw) {
+      setAmount(0);
+      setDisplay("");
+      return;
+    }
+
+    const cents = parseInt(raw, 10);
+    setAmount(cents);
+
+    const formatted = (cents / 100).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+    setDisplay(formatted);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -104,7 +148,7 @@ export function EventForm({
             </Label>
             <Select
               value={type}
-              onValueChange={(v) => setType(v as CalendarEvent["type"])}
+              onValueChange={(v) => setType(v as TransactionType)}
             >
               <SelectTrigger className="border-border bg-secondary">
                 <SelectValue />
@@ -132,22 +176,20 @@ export function EventForm({
             />
           </div>
 
-          {type !== "reminder" && (
-            <div className="space-y-2">
-              <Label htmlFor="amount" className="text-foreground">
-                Valor (R$)
-              </Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="0,00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="border-border bg-secondary"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="amount" className="text-foreground">
+              Valor (R$)
+            </Label>
+            <Input
+              id="amount"
+              inputMode="numeric"
+              step="0.01"
+              placeholder="0,00"
+              value={display}
+              onChange={handleChangeAmount}
+              className="border-border bg-secondary"
+            />
+          </div>
         </div>
 
         <DialogFooter>

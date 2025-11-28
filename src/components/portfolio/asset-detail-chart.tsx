@@ -34,11 +34,11 @@ export function AssetDetailChart({ item, chartData }: AssetDetailChartProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl">
-              {item.asset.logo}
+              {/* {item.asset.logo} */}🎯
             </div>
             <div>
               <CardTitle className="text-foreground">
-                {item.asset.symbol}
+                {item.asset.name}
               </CardTitle>
               <p className="text-muted-foreground text-sm">{item.asset.name}</p>
             </div>

@@ -5,6 +5,7 @@ import { TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PortfolioItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface TopAssetsProps {
   portfolio: PortfolioItem[];
@@ -28,21 +29,21 @@ export function TopAssets({ portfolio }: TopAssetsProps) {
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg">
-                    {item.asset.logo}
+                    {/* {item.asset.logo} */}🎯
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
                       {item.asset.symbol}
                     </p>
                     <p className="text-muted-foreground text-xs">
-                      {item.asset.name}
+                      {item.asset.symbol}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-foreground text-sm">
-                    {item.currentValue.toLocaleString("pt-BR", {
-                      style: "currency",
+                    {formatCurrency(item.currentValue, {
+                      locale: "pt-BR",
                       currency: "BRL",
                     })}
                   </p>

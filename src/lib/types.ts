@@ -1,14 +1,17 @@
-export type AssetType = "BRL" | "USD" | "CRYPTO";
+export type AssetType = "BRL" | "USD" | "CRYPTO" | "ALL";
 
 export interface Asset {
-  id: string;
-  symbol: string;
   name: string;
-  type: AssetType;
+  symbol: string;
+  currency: "USD" | "BRL" | "ALL" | "CRYPTO";
   price: number;
-  change24h: number;
-  changePercent24h: number;
-  logo?: string;
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  // name: string;
+  // change24h: number;
+  // changePercent24h: number;
+  // logo?: string;
 }
 
 export interface PortfolioItem {
@@ -20,14 +23,6 @@ export interface PortfolioItem {
   currentValue: number;
   profit: number;
   profitPercent: number;
-}
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  date: string;
-  type: "bill" | "income" | "investment" | "reminder";
-  amount?: number;
 }
 
 export interface ChartDataPoint {

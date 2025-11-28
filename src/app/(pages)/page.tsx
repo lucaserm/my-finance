@@ -9,7 +9,7 @@ import { useTransaction } from "@/hooks/queries/use-transaction";
 import { generatePortfolioHistory, mockPortfolio } from "@/lib/mock-data";
 
 export default function DashboardPage() {
-  const { data } = useTransaction();
+  const { data: transaction } = useTransaction();
 
   const portfolioHistory = generatePortfolioHistory();
 
@@ -24,12 +24,12 @@ export default function DashboardPage() {
     (totalProfit / (totalPortfolioValue - totalProfit)) * 100;
 
   const monthlyIncome =
-    (data?.transactions
+    (transaction?.transactions
       .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amountInCents, 0) || 0) / 100;
 
   const monthlyExpenses =
-    (data?.transactions
+    (transaction?.transactions
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amountInCents, 0) || 0) / 100;
 
@@ -64,7 +64,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <RecentTransactions transactions={data?.transactions ?? []} />
+          <RecentTransactions transactions={transaction?.transactions ?? []} />
         </div>
       </main>
     </div>

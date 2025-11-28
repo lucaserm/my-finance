@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { AssetCard } from "@/components/search/asset-card";
 import { BuyModal } from "@/components/search/buy-modal";
@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useStock } from "@/hooks/queries/use-stock";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
-import { generateAssetHistory, mockAssets } from "@/lib/mock-data";
+import { generateAssetHistory } from "@/lib/mock-data";
 import type { Asset, AssetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -29,15 +30,14 @@ export default function SearchPage() {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const { toast } = useToast();
 
-  const filteredAssets = useMemo(() => {
-    return mockAssets.filter((asset) => {
-      const matchesSearch =
-        asset.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-        || asset.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = selectedType === "ALL" || asset.type === selectedType;
-      return matchesSearch && matchesType;
-    });
-  }, [searchQuery, selectedType]);
+  const { data, refetch } = useStock({
+    symbol: searchQuery,
+    currency: selectedType === "ALL" ? "BRL" : selectedType,
+  });
+
+  const handleSearchChange = useDebounce(() => {
+    refetch();
+  }, 300);
 
   const handleBuy = (asset: Asset) => {
     setSelectedAsset(asset);
@@ -77,11 +77,8 @@ export default function SearchPage() {
                 placeholder="Buscar por símbolo ou nome..."
                 value={searchQuery}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const {} = useStock({
-                    symbol: value,
-                    currency: selectedType === "ALL" ? "BRL" : selectedType,
-                  });
+                  setSearchQuery(e.target.value);
+                  handleSearchChange();
                 }}
                 className="border-border bg-card pl-10"
               />
@@ -106,17 +103,17 @@ export default function SearchPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredAssets.map((asset) => (
+            {data?.stock && (
               <AssetCard
-                key={asset.id}
-                asset={asset}
-                chartData={generateAssetHistory(asset.price)}
+                key={data.stock.symbol}
+                asset={data.stock}
+                chartData={generateAssetHistory(data.stock.price ?? 0)}
                 onBuy={handleBuy}
               />
-            ))}
+            )}
           </div>
 
-          {filteredAssets.length === 0 && (
+          {!data?.stock && (
             <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 Nenhum ativo encontrado para sua busca.
