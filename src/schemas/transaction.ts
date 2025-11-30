@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const transactionType = z.enum(["income", "expense", "investment"]);
+const transactionType = z.enum(["income", "expense"]);
 
 const transactionSchema = z.object({
   id: z.uuid(),

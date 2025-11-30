@@ -1,12 +1,23 @@
 import { NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
+import z from "zod";
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const symbol = url.searchParams.get("symbol")?.toUpperCase();
-  const currency = url.searchParams.get("currency")?.toUpperCase();
+import { currenciesSchema } from "@/schemas/currency";
 
-  if (!symbol || !currency) {
+const bodySchema = z.object({
+  params: z
+    .object({
+      symbol: z.string(),
+      currency: currenciesSchema,
+    })
+    .array(),
+});
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { params } = bodySchema.parse(body);
+
+  if (!params || params.length === 0) {
     return new NextResponse(
       JSON.stringify({
         error: 'Parâmetros "symbol" e "currency" são obrigatórios.',
@@ -18,51 +29,82 @@ export async function GET(request: Request) {
     );
   }
 
-  const symbolBRL = `${symbol}.SA`;
-  const symbolUSD = symbol;
+  const exec: Promise<any>[] = [];
 
-  const exec = [];
+  params.forEach((param) => {
+    const symbolsBRL = `${param.symbol.toUpperCase()}.SA`;
+    const symbolsUSD = `${param.symbol}`;
 
-  if (currency === "BRL") {
-    exec.push(yahooFinance.quote(symbolBRL));
-  }
-
-  if (currency === "USD") {
-    exec.push(yahooFinance.quote(symbolUSD));
-  }
-
-  if (currency === "ALL") {
-    exec.push(yahooFinance.quote(symbolBRL));
-    exec.push(yahooFinance.quote(symbolUSD));
-  }
-
-  try {
-    const results = await Promise.all(exec);
-
-    const formatStock = (data: any) => {
-      return {
-        name: data.longName,
-        symbol: data.symbol,
-        currency: data.currency,
-        price: data.regularMarketPrice.toFixed(2),
-        openPrice: data.regularMarketOpen.toFixed(2),
-        highPrice: data.regularMarketDayRange.high.toFixed(2),
-        lowPrice: data.regularMarketDayRange.low.toFixed(2),
-        dayChange: Math.round(data.regularMarketChange.toFixed(2)),
-      };
-    };
-
-    if (currency === "ALL") {
-      return NextResponse.json(
-        {
-          brl: formatStock(results[0]),
-          usd: formatStock(results[1]),
-        },
-        { status: 200 }
-      );
+    if (param.currency === "BRL") {
+      exec.push(yahooFinance.quote(symbolsBRL, { return: "array" }));
     }
 
-    return NextResponse.json(formatStock(results[0]), { status: 200 });
+    if (param.currency === "USD") {
+      exec.push(yahooFinance.quote(symbolsUSD, { return: "array" }));
+    }
+  });
+
+  try {
+    const stocksResult: Array<{
+      name: string;
+      symbol: string;
+      currency: string;
+      price: number;
+      openPrice: number;
+      highPrice: number;
+      lowPrice: number;
+      dayChange?: number;
+    }> = [];
+
+    const cryptoResult: Array<{ price: number }> = [];
+
+    const fetchAll = await Promise.all(exec);
+
+    await Promise.all(
+      fetchAll.map(async (res) => {
+        if (params[0].currency !== "CRYPTO") {
+          if (!res || res.length === 0) return;
+          res.forEach((res2: any) => {
+            stocksResult.push({
+              name: res2.longName,
+              symbol: res2.symbol,
+              currency: res2.currency,
+              price: res2.regularMarketPrice
+                ? res2.regularMarketPrice.toFixed(2)
+                : undefined,
+              openPrice: res2.regularMarketOpen
+                ? res2.regularMarketOpen.toFixed(2)
+                : undefined,
+              highPrice: res2.regularMarketDayRange
+                ? res2.regularMarketDayRange.high.toFixed(2)
+                : undefined,
+              lowPrice: res2.regularMarketDayRange
+                ? res2.regularMarketDayRange.low.toFixed(2)
+                : undefined,
+              dayChange: res2.regularMarketChange
+                ? res2.regularMarketChange.toFixed(2)
+                : undefined,
+            });
+          });
+          return;
+        }
+
+        const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${params[0].symbol}&vs_currencies=brl,usd`;
+        const result = await fetch(apiUrl);
+        const data = await result.json();
+        cryptoResult.push({
+          price: data[`${params[0].symbol.toLowerCase()}`].brl,
+        });
+      })
+    );
+
+    return NextResponse.json(
+      {
+        stocks: stocksResult,
+        crypto: cryptoResult,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Erro ao buscar dados da ação:", error);
     return new NextResponse(

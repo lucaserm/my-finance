@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -70,6 +71,8 @@ export const verificationTable = pgTable("verification", {
   ),
 });
 
+export const currencyEnum = pgEnum("currency", ["USD", "BRL", "CRYPTO"]);
+
 export const portfolioItemTable = pgTable("portfolio_item", {
   id: uuid("id")
     .primaryKey()
@@ -78,9 +81,9 @@ export const portfolioItemTable = pgTable("portfolio_item", {
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
   assetSymbol: text("asset_symbol").notNull(),
-  quantity: text("quantity").notNull(),
-  purchasePrice: text("purchase_price").notNull(),
-  purchasedAt: timestamp("purchased_at").notNull(),
+  assetCurrency: currencyEnum("asset_currency").notNull(),
+  totalQuantity: integer("total_quantity").notNull(),
+  totalInvestedInCents: integer("total_invested_in_cents").notNull(),
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
@@ -89,10 +92,36 @@ export const portfolioItemTable = pgTable("portfolio_item", {
     .notNull(),
 });
 
+export const portfolioItemRelations = relations(
+  portfolioItemTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [portfolioItemTable.userId],
+      references: [userTable.id],
+    }),
+  })
+);
+
+export const investmentTransactionTable = pgTable("investment_transaction", {
+  id: uuid("id")
+    .primaryKey()
+    .$defaultFn(() => v7()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  assetSymbol: text("asset_symbol").notNull(),
+  assetCurrency: currencyEnum("asset_currency").notNull(),
+  quantity: integer("quantity").notNull(),
+  priceInCents: bigint("amount_in_cents", { mode: "number" }).notNull(),
+  totalPaidInCents: bigint("total_paid_in_cents", { mode: "number" }).notNull(),
+  transactedAt: timestamp("transacted_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const enumTransactionType = pgEnum("transaction_type", [
   "income",
   "expense",
-  "investment",
 ]);
 
 export const transactionTable = pgTable("transaction", {
@@ -109,17 +138,6 @@ export const transactionTable = pgTable("transaction", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
-
-export const transactionRelations = relations(
-  transactionTable,
-  ({ one, many }) => ({
-    user: one(userTable, {
-      fields: [transactionTable.userId],
-      references: [userTable.id],
-    }),
-    categories: many(transactionCategoryTable),
-  })
-);
 
 export const transactionCategoryTable = pgTable("transaction_category", {
   id: uuid("id")
@@ -138,6 +156,17 @@ export const transactionCategoryTable = pgTable("transaction_category", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const transactionRelations = relations(
+  transactionTable,
+  ({ one, many }) => ({
+    user: one(userTable, {
+      fields: [transactionTable.userId],
+      references: [userTable.id],
+    }),
+    categories: many(transactionCategoryTable),
+  })
+);
 
 export const transactionCategoryRelations = relations(
   transactionCategoryTable,

@@ -10,7 +10,7 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { PortfolioItem } from "@/lib/types";
+import type { PortfolioItem } from "@/schemas/portfolio-item";
 
 interface AllocationChartProps {
   portfolio: PortfolioItem[];
@@ -26,8 +26,8 @@ const COLORS = [
 
 export function AllocationChart({ portfolio }: AllocationChartProps) {
   const data = portfolio.map((item, index) => ({
-    name: item.asset.symbol,
-    value: item.currentValue,
+    name: item.assetSymbol,
+    value: item.totalInvestedInCents,
     color: COLORS[index % COLORS.length],
   }));
 

@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import { AssetCard } from "@/components/search/asset-card";
 import { BuyModal } from "@/components/search/buy-modal";
-import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
@@ -57,8 +56,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
+    <>
       <main className="flex-1 overflow-auto p-6">
         <div className="mx-auto max-w-7xl space-y-6">
           <div>
@@ -105,9 +103,9 @@ export default function SearchPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data?.stock && (
               <AssetCard
-                key={data.stock.symbol}
-                asset={data.stock}
-                chartData={generateAssetHistory(data.stock.price ?? 0)}
+                key={data?.stock.symbol}
+                asset={data?.stock}
+                chartData={generateAssetHistory(data?.stock.price ?? 0)}
                 onBuy={handleBuy}
               />
             )}
@@ -130,6 +128,6 @@ export default function SearchPage() {
         onConfirm={handleConfirmBuy}
       />
       <Toaster />
-    </div>
+    </>
   );
 }

@@ -3,7 +3,6 @@
 import { Filter, Plus, Search } from "lucide-react";
 import { useState } from "react";
 
-import { Sidebar } from "@/components/sidebar";
 import { SummaryCards } from "@/components/transactions/summary-cards";
 import { TransactionForm } from "@/components/transactions/transaction-form";
 import { TransactionsTable } from "@/components/transactions/transactions-table";
@@ -17,14 +16,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
+import { useCreateInvestmentTransaction } from "@/hooks/mutations/create-investment-transaction";
 import { useCreateTransaction } from "@/hooks/mutations/create-transaction";
 import { useDeleteTransaction } from "@/hooks/mutations/delete-transaction";
 import { useTransaction } from "@/hooks/queries/use-transaction";
 import { useToast } from "@/hooks/use-toast";
+import type { CreateInvestmentTransaction } from "@/schemas/investment-transaction";
 import type { CreateTransaction } from "@/schemas/transaction";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function TransactionsPage() {
   const { data, isPending } = useTransaction();
+  const createInvestmentTransaction = useCreateInvestmentTransaction();
   const createTransactionMutation = useCreateTransaction();
   const deleteTransactionMutation = useDeleteTransaction();
 
@@ -44,7 +47,6 @@ export default function TransactionsPage() {
       const matchesSearch = t.description
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      // || t.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = filterType === "all" || t.type === filterType;
       return matchesSearch && matchesType;
     }) || [];
@@ -59,7 +61,7 @@ export default function TransactionsPage() {
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amountInCents, 0) || 0;
 
-  const handleSave = async (transaction: CreateTransaction) => {
+  const handleSaveTransaction = async (transaction: CreateTransaction) => {
     const newTransaction: CreateTransaction = {
       ...transaction,
     };
@@ -67,6 +69,19 @@ export default function TransactionsPage() {
     toast({
       title: "Transação adicionada!",
       description: `${transaction.type === "income" ? "Entrada" : "Saída"} de ${transaction.amountInCents.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+    });
+  };
+
+  const handleSaveInvestment = async (
+    transaction: CreateInvestmentTransaction,
+  ) => {
+    const newTransaction: CreateInvestmentTransaction = {
+      ...transaction,
+    };
+    await createInvestmentTransaction.mutateAsync(newTransaction);
+    toast({
+      title: "Transação adicionada!",
+      description: `Investimento de ${formatCurrency(transaction.totalPaidInCents / 100, { locale: "pt-BR", currency: "BRL" })}`,
     });
   };
 
@@ -79,8 +94,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
+    <>
       <main className="flex-1 overflow-auto p-6">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -144,9 +158,10 @@ export default function TransactionsPage() {
       <TransactionForm
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSave={handleSave}
+        onSaveTransaction={handleSaveTransaction}
+        onSaveInvestment={handleSaveInvestment}
       />
       <Toaster />
-    </div>
+    </>
   );
 }

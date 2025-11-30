@@ -5,6 +5,8 @@ import type React from "react";
 import ReactQueryProvider from "@/providers/react-query";
 import "./globals.css";
 
+import { Sidebar } from "@/components/sidebar";
+
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
@@ -23,7 +25,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark">
       <body className={`font-sans antialiased`}>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <div className="flex min-h-screen bg-background">
+          <Sidebar />
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </div>
         {/* <Analytics /> */}
       </body>
     </html>

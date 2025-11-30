@@ -1,10 +1,12 @@
+import type { PortfolioItem } from "@/schemas/portfolio-item";
 import type { Transaction } from "@/schemas/transaction";
 import { formatDate } from "@/utils/formatDate";
 
-import type { Asset, ChartDataPoint, PortfolioItem } from "./types";
+import type { Asset, ChartDataPoint } from "./types";
 
 export const mockAssets: Asset[] = [
   {
+    name: "PETR4",
     symbol: "PETR4",
     currency: "BRL",
     price: 38.45,
@@ -13,6 +15,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "VALE3",
     symbol: "VALE3",
     currency: "BRL",
     price: 62.3,
@@ -21,6 +24,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "ITUB4",
     symbol: "ITUB4",
     currency: "BRL",
     price: 32.15,
@@ -29,6 +33,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "BBDC4",
     symbol: "BBDC4",
     currency: "BRL",
     price: 12.8,
@@ -37,6 +42,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "AAPL",
     symbol: "AAPL",
     currency: "USD",
     price: 189.25,
@@ -45,6 +51,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "GOOGL",
     symbol: "GOOGL",
     currency: "USD",
     price: 141.8,
@@ -53,6 +60,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "MSFT",
     symbol: "MSFT",
     currency: "USD",
     price: 378.9,
@@ -61,6 +69,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "TSLA",
     symbol: "TSLA",
     currency: "USD",
     price: 248.5,
@@ -69,7 +78,8 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
-    symbol: "BTC",
+    name: "Bitcoin",
+    symbol: "BITCOIN",
     currency: "CRYPTO",
     price: 67450.0,
     highPrice: 39.0,
@@ -77,6 +87,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "ETH",
     symbol: "ETH",
     currency: "CRYPTO",
     price: 3520.0,
@@ -85,7 +96,8 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
-    symbol: "SOL",
+    name: "Solana",
+    symbol: "SOLANA",
     currency: "CRYPTO",
     price: 145.8,
     highPrice: 39.0,
@@ -93,6 +105,7 @@ export const mockAssets: Asset[] = [
     openPrice: 38.0,
   },
   {
+    name: "ADA",
     symbol: "ADA",
     currency: "CRYPTO",
     price: 0.45,
@@ -105,43 +118,56 @@ export const mockAssets: Asset[] = [
 export const mockPortfolio: PortfolioItem[] = [
   {
     id: "1",
-    asset: mockAssets[0],
-    quantity: 100,
-    purchasePrice: 35.0,
-    purchaseDate: "2024-01-15",
-    currentValue: 3845.0,
-    profit: 345.0,
-    profitPercent: 9.86,
+    assetSymbol: mockAssets[0].symbol,
+    assetCurrency: mockAssets[0].currency,
+    totalQuantity: 100,
+    totalInvestedInCents: 35.0,
+    userId: "user-123",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // currentValue: 3845.0,
+    // profit: 345.0,
+    // profitPercent: 9.86,
   },
   {
     id: "2",
-    asset: mockAssets[4],
-    quantity: 10,
-    purchasePrice: 175.0,
-    purchaseDate: "2024-02-20",
-    currentValue: 1892.5,
-    profit: 142.5,
-    profitPercent: 8.14,
+    assetSymbol: mockAssets[4].symbol,
+    assetCurrency: mockAssets[4].currency,
+    totalQuantity: 10,
+    totalInvestedInCents: 175.0,
+    userId: "user-123",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // currentValue: 1892.5,
+    // profit: 142.5,
+    // profitPercent: 8.14,
   },
   {
     id: "3",
-    asset: mockAssets[8],
-    quantity: 0.5,
-    purchasePrice: 45000.0,
-    purchaseDate: "2023-11-10",
-    currentValue: 33725.0,
-    profit: 11225.0,
-    profitPercent: 49.89,
+    assetSymbol: mockAssets[8].symbol,
+    assetCurrency: mockAssets[8].currency,
+    totalQuantity: 0.5,
+    totalInvestedInCents: 45000.0,
+    userId: "user-123",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // currentValue: 33725.0,
+    // profit: 11225.0,
+    // profitPercent: 49.89,
   },
   {
     id: "4",
-    asset: mockAssets[10],
-    quantity: 25,
-    purchasePrice: 95.0,
-    purchaseDate: "2024-03-05",
-    currentValue: 3645.0,
-    profit: 1270.0,
-    profitPercent: 53.47,
+    assetSymbol: mockAssets[10].symbol,
+    assetCurrency: mockAssets[10].currency,
+    totalQuantity: 25,
+    totalInvestedInCents: 95.0,
+    userId: "user-123",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+
+    // currentValue: 3645.0,
+    // profit: 1270.0,
+    // profitPercent: 53.47,
   },
 ];
 

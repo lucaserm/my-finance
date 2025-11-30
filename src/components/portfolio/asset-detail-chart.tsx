@@ -12,8 +12,11 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ChartDataPoint, PortfolioItem } from "@/lib/types";
+import { useStock } from "@/hooks/queries/use-stock";
+import type { ChartDataPoint } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import type { PortfolioItem } from "@/schemas/portfolio-item";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface AssetDetailChartProps {
   item: PortfolioItem;
@@ -21,7 +24,20 @@ interface AssetDetailChartProps {
 }
 
 export function AssetDetailChart({ item, chartData }: AssetDetailChartProps) {
-  const isPositive = item.profitPercent >= 0;
+  const { data, isPending } = useStock({
+    symbol: item.assetSymbol,
+    currency: item.assetCurrency,
+  });
+
+  if (isPending || !data) {
+    return <div>Loading chart...</div>;
+  }
+
+  const profitPercent =
+    (data.stock?.price ?? 0)
+    - item.totalInvestedInCents / item.totalQuantity / 100;
+
+  const isPositive = profitPercent >= 0;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -38,15 +54,17 @@ export function AssetDetailChart({ item, chartData }: AssetDetailChartProps) {
             </div>
             <div>
               <CardTitle className="text-foreground">
-                {item.asset.name}
+                {item.assetSymbol}
               </CardTitle>
-              <p className="text-muted-foreground text-sm">{item.asset.name}</p>
+              <p className="text-muted-foreground text-sm">
+                {item.assetSymbol}
+              </p>
             </div>
           </div>
           <div className="text-right">
             <p className="font-bold text-foreground text-xl">
-              {item.currentValue.toLocaleString("pt-BR", {
-                style: "currency",
+              {formatCurrency(item.totalInvestedInCents / 100, {
+                locale: "pt-BR",
                 currency: "BRL",
               })}
             </p>
@@ -63,11 +81,16 @@ export function AssetDetailChart({ item, chartData }: AssetDetailChartProps) {
               )}
               <span>
                 {isPositive ? "+" : ""}
-                {item.profit.toLocaleString("pt-BR", {
+                {profitPercent.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 })}{" "}
-                ({item.profitPercent.toFixed(2)}%)
+                (
+                {formatCurrency(profitPercent, {
+                  locale: "pt-BR",
+                  currency: "BRL",
+                })}
+                %)
               </span>
             </div>
           </div>
@@ -77,21 +100,26 @@ export function AssetDetailChart({ item, chartData }: AssetDetailChartProps) {
         <div className="mb-6 grid grid-cols-3 gap-4 text-sm">
           <div className="rounded-lg bg-secondary/50 p-3">
             <p className="text-muted-foreground">Quantidade</p>
-            <p className="font-semibold text-foreground">{item.quantity}</p>
+            <p className="font-semibold text-foreground">
+              {item.totalQuantity}
+            </p>
           </div>
           <div className="rounded-lg bg-secondary/50 p-3">
             <p className="text-muted-foreground">Preço Médio</p>
             <p className="font-semibold text-foreground">
-              {item.purchasePrice.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
+              {formatCurrency(
+                item.totalInvestedInCents / item.totalQuantity / 100,
+                {
+                  locale: "pt-BR",
+                  currency: "BRL",
+                },
+              )}
             </p>
           </div>
           <div className="rounded-lg bg-secondary/50 p-3">
             <p className="text-muted-foreground">Data de Compra</p>
             <p className="font-semibold text-foreground">
-              {new Date(item.purchaseDate).toLocaleDateString("pt-BR")}
+              {new Date(item.createdAt).toLocaleDateString("pt-BR")}
             </p>
           </div>
         </div>

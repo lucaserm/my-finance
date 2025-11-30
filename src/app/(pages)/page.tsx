@@ -13,12 +13,18 @@ export default function DashboardPage() {
 
   const portfolioHistory = generatePortfolioHistory();
 
-  const totalPortfolioValue = mockPortfolio.reduce(
-    (sum, item) => sum + item.currentValue,
+  const totalPortfolioValue = mockPortfolio.reduce((sum, item) => {
+    // const { data } = useStock({
+    //   currency: item.assetCurrency,
+    //   symbol: item.assetSymbol,
+    // });
+    return sum + item.quantity * (item.purchasePrice || 0);
+  }, 0);
+
+  const totalProfit = mockPortfolio.reduce(
+    (sum, item) => sum + (item.profit || 0),
     0,
   );
-
-  const totalProfit = mockPortfolio.reduce((sum, item) => sum + item.profit, 0);
 
   const portfolioChangePercent =
     (totalProfit / (totalPortfolioValue - totalProfit)) * 100;

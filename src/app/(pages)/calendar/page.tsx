@@ -6,7 +6,6 @@ import { useState } from "react";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { EventForm } from "@/components/calendar/event-form";
 import { UpcomingEvents } from "@/components/calendar/upcoming-events";
-import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { useCreateTransaction } from "@/hooks/mutations/create-transaction";
@@ -84,8 +83,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
+    <>
       <main className="flex-1 overflow-auto p-6">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -132,6 +130,6 @@ export default function CalendarPage() {
         editEvent={editEvent}
       />
       <Toaster />
-    </div>
+    </>
   );
 }

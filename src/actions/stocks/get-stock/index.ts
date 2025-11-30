@@ -1,4 +1,4 @@
-export type Currency = "USD" | "BRL" | "CRYPTO" | "ALL";
+import type { Currency } from "@/schemas/currency";
 
 interface GetStockProps {
   symbol: string;
@@ -13,11 +13,14 @@ export interface Stock {
   openPrice: number;
   highPrice: number;
   lowPrice: number;
-  dayChange: number;
+  dayChange?: number;
 }
 
 export interface StockData {
   stock: Stock | null;
+  crypto?: {
+    price?: number;
+  };
 }
 
 export const getStock = async ({
@@ -30,9 +33,15 @@ export const getStock = async ({
   }
 
   try {
-    const response = await fetch(
-      `/api/stocks?symbol=${symbol}&currency=${currency}`
-    );
+    const response = await fetch(`/api/stocks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ params: [{ symbol, currency }] }),
+    });
+
+    const { stocks, crypto } = await response.json();
 
     if (!response.ok) {
       return {
@@ -40,19 +49,19 @@ export const getStock = async ({
       };
     }
 
-    const { name, price, openPrice, highPrice, lowPrice, dayChange } =
-      await response.json();
-
     return {
       stock: {
-        name,
+        name: stocks[0].name,
         symbol,
         currency,
-        price: Number.parseFloat(Number.parseFloat(price).toFixed(2)),
-        openPrice: Number.parseFloat(Number.parseFloat(openPrice).toFixed(2)),
-        highPrice: Number.parseFloat(Number.parseFloat(highPrice).toFixed(2)),
-        lowPrice: Number.parseFloat(Number.parseFloat(lowPrice).toFixed(2)),
-        dayChange: Number.parseFloat(Number.parseFloat(dayChange).toFixed(2)),
+        price: stocks[0].price,
+        openPrice: stocks[0].openPrice,
+        highPrice: stocks[0].highPrice,
+        lowPrice: stocks[0].lowPrice,
+        dayChange: stocks[0].dayChange ? stocks[0].dayChange : undefined,
+      },
+      crypto: {
+        price: crypto[0]?.price ? crypto[0].price : undefined,
       },
     };
   } catch (error) {

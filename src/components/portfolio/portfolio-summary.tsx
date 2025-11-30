@@ -3,22 +3,47 @@
 import { Briefcase, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { PortfolioItem } from "@/lib/types";
+import { useStocks } from "@/hooks/queries/use-stocks";
+import type { PortfolioItem } from "@/schemas/portfolio-item";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface PortfolioSummaryProps {
-  portfolio: PortfolioItem[];
+  portfolioItem: PortfolioItem[];
 }
 
-export function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
-  const totalInvested = portfolio.reduce(
-    (sum, item) => sum + item.purchasePrice * item.quantity,
+export function PortfolioSummary({ portfolioItem }: PortfolioSummaryProps) {
+  const { data, isPending } = useStocks({
+    params: portfolioItem.map((item) => ({
+      symbol: item.assetSymbol,
+      currency: item.assetCurrency,
+    })),
+  });
+
+  if (isPending || !data) {
+    return <div>Loading...</div>;
+  }
+
+  const totalInvested = portfolioItem.reduce(
+    (sum, item) => sum + item.totalInvestedInCents / 100,
     0,
   );
 
-  const totalValue = portfolio.reduce(
-    (sum, item) => sum + item.currentValue,
-    0,
-  );
+  const mergedLists = data.stocks.map((stock) => {
+    const item = portfolioItem.find((item) => {
+      return stock.symbol.includes(item.assetSymbol);
+    });
+
+    return {
+      price: stock.price,
+      totalQuantity: item?.totalQuantity || 0,
+    };
+  });
+
+  const totalValue = mergedLists.reduce((sum, item) => {
+    return sum + item.price * item.totalQuantity;
+  }, 0);
+
+  console.log(mergedLists, totalValue);
 
   const totalProfit = totalValue - totalInvested;
   const profitPercent =
@@ -72,8 +97,8 @@ export function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
               <p
                 className={`font-bold text-2xl ${stat.color === "text-muted-foreground" ? "text-foreground" : stat.color}`}
               >
-                {stat.value.toLocaleString("pt-BR", {
-                  style: "currency",
+                {formatCurrency(stat.value, {
+                  locale: "pt-BR",
                   currency: "BRL",
                 })}
               </p>
