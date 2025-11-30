@@ -4,30 +4,40 @@ import { PortfolioChart } from "@/components/dashboard/portfolio-chart";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { TopAssets } from "@/components/dashboard/top-assets";
-import { Sidebar } from "@/components/sidebar";
+import { usePortfolioItems } from "@/hooks/queries/use-portfolio-items";
+import { useStocks } from "@/hooks/queries/use-stocks";
 import { useTransaction } from "@/hooks/queries/use-transaction";
 import { generatePortfolioHistory, mockPortfolio } from "@/lib/mock-data";
 
 export default function DashboardPage() {
   const { data: transaction } = useTransaction();
+  const { data: portfolio } = usePortfolioItems();
+  const { data: stocks } = useStocks({
+    params:
+      portfolio?.portfolioItems.map((item) => ({
+        symbol: item.assetSymbol,
+        currency: item.assetCurrency,
+      })) || [],
+  });
 
   const portfolioHistory = generatePortfolioHistory();
 
-  const totalPortfolioValue = mockPortfolio.reduce((sum, item) => {
-    // const { data } = useStock({
-    //   currency: item.assetCurrency,
-    //   symbol: item.assetSymbol,
-    // });
-    return sum + item.quantity * (item.purchasePrice || 0);
-  }, 0);
+  const totalPortfolioValue =
+    portfolio?.portfolioItems.reduce(
+      (sum, item) => sum + item.totalInvestedInCents / 100,
+      0,
+    ) || 0;
 
-  const totalProfit = mockPortfolio.reduce(
-    (sum, item) => sum + (item.profit || 0),
-    0,
-  );
+  // const totalProfit = portfolio?.portfolioItems.reduce((sum, item) => {
+  //   const stock = stocks?.stocks.find((stock) =>
+  //     stock.symbol.includes(item.assetSymbol),
+  //   );
 
-  const portfolioChangePercent =
-    (totalProfit / (totalPortfolioValue - totalProfit)) * 100;
+  //   return sum + (item.profit || 0);
+  // }, 0);
+
+  // const portfolioChangePercent =
+  //   (totalProfit / (totalPortfolioValue - totalProfit)) * 100;
 
   const monthlyIncome =
     (transaction?.transactions
@@ -42,37 +52,32 @@ export default function DashboardPage() {
   const totalBalance = monthlyIncome - monthlyExpenses + totalPortfolioValue;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-auto p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div>
-            <h1 className="font-bold text-2xl text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Visão geral das suas finanças
-            </p>
-          </div>
-
-          <StatsCards
-            totalBalance={totalBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpenses={monthlyExpenses}
-            portfolioValue={totalPortfolioValue}
-            portfolioChange={portfolioChangePercent}
-          />
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <PortfolioChart data={portfolioHistory} />
-            </div>
-            <div>
-              <TopAssets portfolio={mockPortfolio} />
-            </div>
-          </div>
-
-          <RecentTransactions transactions={transaction?.transactions ?? []} />
+    <main className="flex-1 overflow-auto p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div>
+          <h1 className="font-bold text-2xl text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral das suas finanças</p>
         </div>
-      </main>
-    </div>
+
+        <StatsCards
+          totalBalance={totalBalance}
+          monthlyIncome={monthlyIncome}
+          monthlyExpenses={monthlyExpenses}
+          portfolioValue={totalPortfolioValue}
+          portfolioChange={0}
+        />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <PortfolioChart data={portfolioHistory} />
+          </div>
+          <div>
+            <TopAssets portfolio={mockPortfolio} />
+          </div>
+        </div>
+
+        <RecentTransactions transactions={transaction?.transactions ?? []} />
+      </div>
+    </main>
   );
 }

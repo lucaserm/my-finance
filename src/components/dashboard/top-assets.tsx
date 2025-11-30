@@ -73,7 +73,7 @@ function AssetItem({ item }: { item: PortfolioItem }) {
               <TrendingDown className="h-3 w-3" />
             )}
             {data.stock.dayChange >= 0 ? "+" : ""}
-            {data.stock.dayChange.toFixed(2)}%
+            {data.stock.dayChange}%
           </p>
         )}
       </div>

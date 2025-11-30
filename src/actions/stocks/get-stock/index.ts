@@ -49,6 +49,8 @@ export const getStock = async ({
       };
     }
 
+    console.log(stocks);
+
     return {
       stock: {
         name: stocks[0].name,
