@@ -27,3 +27,4 @@ jobs:
           file: ./dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/apps:kiaz-finance-${{ github.ref_name }}-latest
+`

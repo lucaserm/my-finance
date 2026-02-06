@@ -18,11 +18,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/search", icon: Search, label: "Buscar Ativos" },
-  { href: "/transactions", icon: ArrowUpDown, label: "Transações" },
-  { href: "/portfolio", icon: Briefcase, label: "Portfólio" },
-  { href: "/calendar", icon: Calendar, label: "Calendário" },
+  { href: "/app", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/app/search", icon: Search, label: "Buscar Ativos" },
+  { href: "/app/transactions", icon: ArrowUpDown, label: "Transações" },
+  { href: "/app/portfolio", icon: Briefcase, label: "Portfólio" },
+  { href: "/app/calendar", icon: Calendar, label: "Calendário" },
 ];
 
 export function Sidebar() {
