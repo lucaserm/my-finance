@@ -49,7 +49,7 @@ const SignInForm = () => {
       password: values.password,
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          router.push("/app");
         },
         onError: ({ error }) => {
           if (error.code === "USER_NOT_FOUND") {

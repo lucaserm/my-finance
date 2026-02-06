@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import type React from "react";
 
 import ReactQueryProvider from "@/providers/react-query";
 import "./globals.css";
 
-import { Sidebar } from "@/components/sidebar";
-
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "FinanceHub - Gerenciamento Financeiro",
   description:
     "Sistema completo de gerenciamento financeiro com ações, crypto e controle de gastos",
-  generator: "v0.app",
 };
 
 export default function RootLayout({
@@ -26,7 +19,6 @@ export default function RootLayout({
     <html lang="pt-BR" className="dark">
       <body className={`font-sans antialiased`}>
         <div className="flex min-h-screen bg-background">
-          <Sidebar />
           <ReactQueryProvider>{children}</ReactQueryProvider>
         </div>
         {/* <Analytics /> */}

@@ -65,7 +65,7 @@ const SignUpForm = () => {
       password: values.password,
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          router.push("/app");
         },
         onError: ({
           error,
