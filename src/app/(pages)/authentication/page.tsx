@@ -1,8 +1,19 @@
 import { SignInForm } from "@/app/(pages)/authentication/components/sign-in-form";
 import { SignUpForm } from "@/app/(pages)/authentication/components/sign-up-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-function Authentication() {
+export default async function Authentication() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/app");
+  }
+
   return (
     <div className="flex w-full flex-col gap-6 p-5">
       <Tabs defaultValue="sign-in">
@@ -20,5 +31,3 @@ function Authentication() {
     </div>
   );
 }
-
-export default Authentication;
