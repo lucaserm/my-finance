@@ -1,18 +1,22 @@
 FROM node:22-alpine AS base
 
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat build-base python3
 WORKDIR /app
 
 COPY package.json  pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm i;
+RUN corepack enable pnpm && pnpm i --ignore-scripts && pnpm rebuild
 
 FROM base AS builder
 WORKDIR /app
+
+ENV CI=true
+COPY package.json  pnpm-lock.yaml* .pnpmrc ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN corepack enable pnpm && pnpm run build;
+# Skip pnpm dependency verification and just run the build
+RUN corepack enable pnpm && npm_config_node_gyp=$(which node-gyp) next build
 
 FROM base AS runner
 WORKDIR /app

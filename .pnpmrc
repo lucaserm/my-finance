@@ -1,3 +1,4 @@
-# Allow build scripts for packages that need native compilation
+# pnpm configuration for Docker builds
 auto-install-peers=true
+confirmModulesPurge=false
 
