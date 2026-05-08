@@ -5,7 +5,9 @@ async function runMigrations() {
   return new Promise((resolve, reject) => {
     console.log("🔄 Running database migrations...");
 
-    const migrate = spawn("pnpm", ["db:migrate"], {
+    // Use drizzle-kit directly instead of pnpm to work in production container
+    const drizzleKitPath = path.join(__dirname, "../node_modules/.bin/drizzle-kit");
+    const migrate = spawn("node", [drizzleKitPath, "migrate"], {
       stdio: "inherit",
       shell: true,
       env: {
