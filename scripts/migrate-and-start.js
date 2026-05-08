@@ -6,7 +6,7 @@ async function runMigrations() {
     console.log("🔄 Running database migrations...");
 
     // Use tsx to run drizzle-kit with TypeScript config support
-    const migrate = spawn("tsx", ["node_modules/drizzle-kit/bin.cjs", "migrate"], {
+    const migrate = spawn("tsx", ["node_modules/drizzle-kit/bin.cjs", "migrate", "--config", "drizzle.config.ts"], {
       stdio: "inherit",
       shell: true,
       env: {
