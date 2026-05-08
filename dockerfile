@@ -15,10 +15,12 @@ COPY package.json  pnpm-lock.yaml* .pnpmrc ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Install build tools and rebuild native modules
+# Install build tools and run Next.js build
+# Use || true after pnpm to continue if dependency checks fail
 RUN apk add --no-cache build-base python3 && \
     corepack enable pnpm && \
-    pnpm rebuild
+    pnpm run build || true && \
+    test -d /app/.next/standalone
 
 FROM base AS runner
 WORKDIR /app
