@@ -8,7 +8,7 @@ ENV GOOGLE_CLIENT_ID=xxxx
 ENV GOOGLE_CLIENT_SECRET=xxxx
 
 COPY package.json  pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile;
+RUN corepack enable pnpm && pnpm approve-builds && pnpm i --frozen-lockfile;
 
 FROM base AS builder
 WORKDIR /app
