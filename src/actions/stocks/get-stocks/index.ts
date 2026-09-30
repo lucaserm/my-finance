@@ -44,7 +44,7 @@ export const getStocks = async ({
       };
     }
 
-    const { stocks, price } = await response.json();
+    const { stocks, crypto } = await response.json();
 
     return {
       stocks: stocks.map((stock: Stock) => ({
@@ -58,7 +58,7 @@ export const getStocks = async ({
         dayChange: stock.dayChange ? stock.dayChange : undefined,
       })),
       crypto: {
-        price: price ? Number.parseFloat(price) : undefined,
+        price: crypto?.[0]?.price,
       },
     };
   } catch (error) {

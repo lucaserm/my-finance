@@ -41,26 +41,26 @@ export const getStock = async ({
       body: JSON.stringify({ params: [{ symbol, currency }] }),
     });
 
-    const { stocks, crypto } = await response.json();
-
     if (!response.ok) {
       return {
         stock: null,
       };
     }
 
-    console.log(stocks);
+    const { stocks, crypto } = await response.json();
+    const stock = stocks[0];
+    if (!stock) return { stock: null };
 
     return {
       stock: {
-        name: stocks[0].name,
-        symbol,
-        currency,
-        price: stocks[0].price,
-        openPrice: stocks[0].openPrice,
-        highPrice: stocks[0].highPrice,
-        lowPrice: stocks[0].lowPrice,
-        dayChange: stocks[0].dayChange ? stocks[0].dayChange : undefined,
+        name: stock.name,
+        symbol: stock.symbol,
+        currency: stock.currency,
+        price: stock.price,
+        openPrice: stock.openPrice,
+        highPrice: stock.highPrice,
+        lowPrice: stock.lowPrice,
+        dayChange: stock.dayChange,
       },
       crypto: {
         price: crypto[0]?.price ? crypto[0].price : undefined,

@@ -24,18 +24,19 @@ const assetTypes: { value: AssetType | "ALL"; label: string }[] = [
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<AssetType | "ALL">("ALL");
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const { toast } = useToast();
 
-  const { data, refetch } = useStock({
-    symbol: searchQuery,
+  const { data } = useStock({
+    symbol: debouncedSearchQuery,
     currency: selectedType === "ALL" ? "BRL" : selectedType,
   });
 
-  const handleSearchChange = useDebounce(() => {
-    refetch();
+  const handleSearchChange = useDebounce((value?: string) => {
+    setDebouncedSearchQuery(value ?? "");
   }, 300);
 
   const handleBuy = (asset: Asset) => {
@@ -75,8 +76,9 @@ export default function SearchPage() {
                 placeholder="Buscar por símbolo ou nome..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  handleSearchChange();
+                  const value = e.target.value;
+                  setSearchQuery(value);
+                  handleSearchChange(value);
                 }}
                 className="border-border bg-card pl-10"
               />
